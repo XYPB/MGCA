@@ -233,6 +233,12 @@ class EmbedPretrainingDataset(data.Dataset):
 
     def load_text_data(self, split):
         base_filename = f"{split}_mgca_captions.pickle"
+        if self.structural_cap:
+            base_filename = base_filename.replace(".pickle", "_structural.pickle")
+        elif self.simple_cap:
+            base_filename = base_filename.replace(".pickle", "_simple.pickle")
+        elif self.natural_cap:
+            base_filename = base_filename.replace(".pickle", "_natural.pickle")
         filepath = os.path.join(EMBED_DATA_DIR, base_filename)
         
         if not os.path.isfile(filepath):
@@ -256,7 +262,7 @@ class EmbedPretrainingDataset(data.Dataset):
             if self.split == 'test' and self.balanced_test and p not in self.balanced_test_path.keys():
                 continue
             # Extract BI-RAS label from the last sentence
-            print(sentences)
+            print(sentences, self.structural_cap)
             if self.structural_cap:
                 sent = sentences[-2]
             elif self.natural_cap or self.simple_cap:
