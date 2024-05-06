@@ -256,6 +256,7 @@ class EmbedPretrainingDataset(data.Dataset):
             if self.split == 'test' and self.balanced_test and p not in self.balanced_test_path.keys():
                 continue
             # Extract BI-RAS label from the last sentence
+            print(sentences)
             if self.structural_cap:
                 sent = sentences[-2]
             elif self.natural_cap or self.simple_cap:
