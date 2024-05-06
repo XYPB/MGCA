@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from mgca.constants import *
 from mgca.preprocess.utils import extract_mimic_text
 
