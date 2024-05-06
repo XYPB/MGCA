@@ -13,7 +13,7 @@ from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import (EarlyStopping, LearningRateMonitor,
                                          ModelCheckpoint)
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.plugins import DDP2Plugin, DDPPlugin
+from pytorch_lightning.strategies import DDPStrategy
 from mgca.datasets.data_module import DataModule
 from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                             EmbedPretrainingDataset,
@@ -441,7 +441,7 @@ class MGCA(LightningModule):
     @staticmethod
     def _use_ddp_or_dpp2(trainer: Trainer) -> bool:
         if trainer:
-            return isinstance(trainer.training_type_plugin, (DDPPlugin, DDP2Plugin))
+            return isinstance(trainer.training_type_plugin, DDPStrategy)
         else:
             return torch.distributed.is_initialized()
 
@@ -516,6 +516,7 @@ def cli_main():
     trainer = Trainer.from_argparse_args(
         args=args,
         callbacks=callbacks,
+        strategy=args.strategy,
         logger=wandb_logger)
 
     model.training_steps = model.num_training_steps(trainer, datamodule)
