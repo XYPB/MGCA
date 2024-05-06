@@ -175,7 +175,7 @@ def check_element_type(element, str_pool = None):
 class EmbedPretrainingDataset(data.Dataset):
     def __init__(self, split='train', transform=None, data_pct=1.0,
                  imsize=256, max_words=72, simple_cap=False,
-                train_sub_set=False, structural_cap=False,
+                 train_sub_set=False, structural_cap=False,
                  natural_cap=False, balanced_test=False, **kwargs):
         super().__init__()
         if not os.path.exists(EMBED_DATA_DIR):
@@ -268,7 +268,7 @@ class EmbedPretrainingDataset(data.Dataset):
             elif self.natural_cap or self.simple_cap:
                 sent = sentences[-1]
             else:
-                sent = sentences[0].lower().replace('-', '')
+                sent = sentences[-1].lower().replace('-', '')
             sent = sent.replace('bi rads', 'birads')
             assert 'birads' in sent
             if self.structural_cap or self.natural_cap:

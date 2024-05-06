@@ -490,7 +490,10 @@ def cli_main():
 
     datamodule = DataModule(dataset_obj, multimodal_collate_fn,
                             DataTransforms, args.data_pct,
-                            args.batch_size, args.num_workers)
+                            args.batch_size, args.num_workers,
+                            structural_cap = args.structural_cap,
+                            simple_cap = args.simple_cap,
+                            natural_cap = args.natural_cap,)
 
     # Add load from checkpoint
     model = MGCA(**args.__dict__)
