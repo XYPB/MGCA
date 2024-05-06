@@ -438,7 +438,6 @@ class MGCA(LightningModule):
         parser.add_argument("--data_pct", type=float, default=1.)
 
         # Training args
-        parser.add_argument("--batch_size", type=int, default=144)
         parser.add_argument("--max_epochs", type=int, default=50) # Unused
         parser.add_argument("--accumulate_grad_batches", type=int, default=1)
         parser.add_argument("--gpus", type=int, default=2)
