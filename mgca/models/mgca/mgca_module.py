@@ -16,6 +16,7 @@ from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.plugins import DDP2Plugin, DDPPlugin
 from mgca.datasets.data_module import DataModule
 from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
+                                            EmbedPretrainingDataset,
                                             multimodal_collate_fn)
 from mgca.datasets.transforms import DataTransforms
 from mgca.models.backbones.encoder import BertEncoder, ImageEncoder
@@ -414,6 +415,7 @@ class MGCA(LightningModule):
         parser = ArgumentParser(parents=[parent_parser], add_help=False)
         parser.add_argument("--img_encoder", type=str, default="vit_base")
         parser.add_argument("--freeze_bert", action="store_true")
+        parser.add_argument("--embed", action="store_true")
         parser.add_argument("--emb_dim", type=int,
                             default=128, help="128, 256")
         parser.add_argument("--num_workers", type=int, default=16)
@@ -478,8 +480,12 @@ def cli_main():
 
     # seed
     seed_everything(args.seed)
+    if args.embed:
+        dataset_obj = EmbedPretrainingDataset
+    else:
+        dataset_obj = MultimodalPretrainingDataset
 
-    datamodule = DataModule(MultimodalPretrainingDataset, multimodal_collate_fn,
+    datamodule = DataModule(dataset_obj, multimodal_collate_fn,
                             DataTransforms, args.data_pct,
                             args.batch_size, args.num_workers)
 
@@ -490,7 +496,7 @@ def cli_main():
     now = datetime.datetime.now(tz.tzlocal())
     extension = now.strftime("%Y_%m_%d_%H_%M_%S")
     ckpt_dir = os.path.join(
-        BASE_DIR, f"../../../data/ckpts/MGCA/{extension}")
+        BASE_DIR, f"../../../logs/ckpts/MGCA/{extension}")
     os.makedirs(ckpt_dir, exist_ok=True)
     callbacks = [
         LearningRateMonitor(logging_interval="step"),
@@ -500,7 +506,7 @@ def cli_main():
                       patience=5, verbose=False, mode="min")
     ]
     logger_dir = os.path.join(
-        BASE_DIR, f"../../../data")
+        BASE_DIR, f"../../../logs")
     os.makedirs(logger_dir, exist_ok=True)
     wandb_logger = WandbLogger(
         project="MGCA", save_dir=logger_dir, name=extension)

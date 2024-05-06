@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 
 
 class DataModule(pl.LightningDataModule):
-    def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, num_workers, crop_size=224):
+    def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, num_workers, crop_size=224, structural_cap=False, simple_cap=False, natural_cap=False):
         super().__init__()
 
         self.dataset = dataset
@@ -13,6 +13,9 @@ class DataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.crop_size = crop_size
+        self.structural_cap = structural_cap
+        self.simple_cap = simple_cap
+        self.natural_cap = natural_cap
 
     def train_dataloader(self):
         if self.transforms:
@@ -21,7 +24,10 @@ class DataModule(pl.LightningDataModule):
             transform = None
         
         dataset = self.dataset(
-            split="train", transform=transform, data_pct=self.data_pct)
+            split="train", transform=transform, data_pct=self.data_pct,
+            structural_cap = self.structural_cap,
+            simple_cap = self.simple_cap,
+            natural_cap = self.natural_cap,)
 
         return DataLoader(
             dataset,
@@ -31,6 +37,7 @@ class DataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             num_workers=self.num_workers,
             collate_fn=self.collate_fn,
+            
         )
 
     def val_dataloader(self):
@@ -39,7 +46,10 @@ class DataModule(pl.LightningDataModule):
         else:
             transform = None
         dataset = self.dataset(
-            split="valid", transform=transform, data_pct=self.data_pct)
+            split="valid", transform=transform, data_pct=self.data_pct,
+            structural_cap = self.structural_cap,
+            simple_cap = self.simple_cap,
+            natural_cap = self.natural_cap,)
         return DataLoader(
             dataset,
             pin_memory=True,
@@ -56,7 +66,10 @@ class DataModule(pl.LightningDataModule):
         else:
             transform = None
         dataset = self.dataset(
-            split="test", transform=transform, data_pct=self.data_pct)
+            split="test", transform=transform, data_pct=self.data_pct,
+            structural_cap = self.structural_cap,
+            simple_cap = self.simple_cap,
+            natural_cap = self.natural_cap,)
         return DataLoader(
             dataset,
             pin_memory=True,
