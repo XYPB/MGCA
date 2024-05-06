@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=bash
-#SBATCH --comment=MGCA_baseline_full_cap
+#SBATCH --comment=MGCA_baseline_simple_cap
 #SBATCH --time=2-00:00:00
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -20,4 +20,4 @@ conda activate clip
 git pull
 
 cd mgca/models/mgca
-python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap
+python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --simple_cap
