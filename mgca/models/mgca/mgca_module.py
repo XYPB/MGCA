@@ -436,6 +436,17 @@ class MGCA(LightningModule):
         parser.add_argument("--seed", type=int, default=42)
         parser.add_argument("--bidirectional", action="store_false")
         parser.add_argument("--data_pct", type=float, default=1.)
+
+        # Training args
+        parser.add_argument("--batch_size", type=int, default=144)
+        parser.add_argument("--max_epochs", type=int, default=50) # Unused
+        parser.add_argument("--accumulate_grad_batches", type=int, default=1)
+        parser.add_argument("--gpus", type=int, default=2)
+        parser.add_argument("--strategy", type=str, default="ddp")
+        parser.add_argument("--accelerator", type=str, default='gpu')
+        parser.add_argument("--precision", type=str, default="32")
+        parser.add_argument("--dev", action="store_true")
+
         return parser
 
     @staticmethod
@@ -511,11 +522,15 @@ def cli_main():
     os.makedirs(logger_dir, exist_ok=True)
     wandb_logger = WandbLogger(
         project="MGCA", save_dir=logger_dir, name=extension)
-    trainer = Trainer.from_argparse_args(
-        args=args,
-        callbacks=callbacks,
+    trainer = Trainer(
+        accelerator=args.accelerator,
         strategy=args.strategy,
-        logger=wandb_logger)
+        devices=args.gpus,
+        precision=args.precision,
+        callbacks=callbacks,
+        logger=wandb_logger,
+        fast_dev_run=args.dev,
+        max_epochs=args.max_epochs)
 
     model.training_steps = model.num_training_steps(trainer, datamodule)
     print(model.training_steps)
