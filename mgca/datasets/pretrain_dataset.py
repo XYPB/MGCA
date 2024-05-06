@@ -262,7 +262,6 @@ class EmbedPretrainingDataset(data.Dataset):
             if self.split == 'test' and self.balanced_test and p not in self.balanced_test_path.keys():
                 continue
             # Extract BI-RAS label from the last sentence
-            print(sentences, self.structural_cap)
             if self.structural_cap:
                 sent = sentences[-2]
             elif self.natural_cap or self.simple_cap:
@@ -525,7 +524,6 @@ class EmbedPretrainingDataset(data.Dataset):
             # Find annotations for this image
             # Can be more than 1 annotations
             captions, label_cnt, missing_info = self._create_captions_(row)
-            print(captions)
 
             # Skip the image if there is no label
             if label_cnt == 0 or missing_info:
