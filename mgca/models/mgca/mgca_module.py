@@ -75,7 +75,7 @@ class MGCA(LightningModule):
             self.hparams.emb_dim, self.hparams.num_heads, batch_first=True)
 
         self.prototype_layer = nn.Linear(emb_dim, num_prototypes, bias=False)
-        if self._use_ddp_or_dpp2(self.trainer):
+        if self.hparams.gpus > 1:
             self.get_assignments = self.distributed_sinkhorn
         else:
             self.get_assignments = self.sinkhorn
@@ -361,14 +361,6 @@ class MGCA(LightningModule):
         self.log_dict(log, batch_size=self.hparams.batch_size,
                       sync_dist=True, prog_bar=True)
         return loss
-
-    # def on_train_epoch_end(self):
-    #     ''' Save img_queue and report_queue for visualization '''
-    #     if self.local_rank == 0:
-    #         img_queue_path = f"{self.trainer.callbacks[-1].dirpath}/img_queue.pth"
-    #         torch.save(self.img_queue, img_queue_path)
-    #         report_queue_path = f"{self.trainer.callbacks[-1].dirpath}/report_queue.pth"
-    #         torch.save(self.report_queue, report_queue_path)
 
     @staticmethod
     def precision_at_k(output: torch.Tensor, target: torch.Tensor, top_k=(1,)):
