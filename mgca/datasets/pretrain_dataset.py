@@ -525,6 +525,7 @@ class EmbedPretrainingDataset(data.Dataset):
             # Find annotations for this image
             # Can be more than 1 annotations
             captions, label_cnt, missing_info = self._create_captions_(row)
+            print(captions)
 
             # Skip the image if there is no label
             if label_cnt == 0 or missing_info:
