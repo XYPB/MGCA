@@ -5,7 +5,6 @@ from pathlib import Path
 DATA_BASE_DIR = '~/project/PEMedCLIP/data' 
 DATA_BASE_DIR = os.path.expanduser(DATA_BASE_DIR)
 DATA_BASE_DIR = Path(DATA_BASE_DIR)
-MY_API_TOKEN = "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"
 HF_CKPT_CACHE_DIR = "~/palmer_scratch/hugging-face-cache"
 HF_CKPT_CACHE_DIR = os.path.expanduser(HF_CKPT_CACHE_DIR)
 # #############################################
