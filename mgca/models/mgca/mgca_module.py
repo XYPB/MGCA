@@ -416,6 +416,9 @@ class MGCA(LightningModule):
         parser.add_argument("--img_encoder", type=str, default="vit_base")
         parser.add_argument("--freeze_bert", action="store_true")
         parser.add_argument("--embed", action="store_true")
+        parser.add_argument("--structural_cap", action="store_true")
+        parser.add_argument("--simple_cap", action="store_true")
+        parser.add_argument("--natural_cap", action="store_true")
         parser.add_argument("--emb_dim", type=int,
                             default=128, help="128, 256")
         parser.add_argument("--num_workers", type=int, default=16)
