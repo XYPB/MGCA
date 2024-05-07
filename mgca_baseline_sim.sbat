@@ -14,7 +14,7 @@
 #SBATCH --nodes 1
 #SBATCH --gpus a5000:2
 
-cd ~/project/PEMedCLIP
+cd ~/project/MGCA
 module load miniconda
 conda activate clip
 git pull
