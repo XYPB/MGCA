@@ -143,4 +143,4 @@ __pycache__
 *.pth
 
 # slurm scripts
-*.sbat
+*.out
