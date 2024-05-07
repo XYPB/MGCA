@@ -141,3 +141,6 @@ __pycache__
 *.svg
 *.eps
 *.pth
+
+# slurm scripts
+*.sbat
