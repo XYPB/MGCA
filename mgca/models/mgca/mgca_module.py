@@ -15,6 +15,7 @@ from pytorch_lightning.callbacks import (EarlyStopping, LearningRateMonitor,
                                          ModelCheckpoint)
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.strategies import DDPStrategy
+from sklearn.metrics import roc_auc_score, accuracy_score, balanced_accuracy_score, f1_score
 from mgca.datasets.data_module import DataModule
 from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                             EmbedPretrainingDataset,
@@ -451,6 +452,35 @@ class MGCA(LightningModule):
         self.log_dict(log, batch_size=self.hparams.batch_size,
                       sync_dist=True, prog_bar=True)
         return loss
+    
+    def on_test_epoch_end(self):
+
+        # Calculate the confusion matrix using the accumulated predictions and targets
+        conf_matrix = self.confmat.compute().cpu().numpy()
+        print("### Confusion Matrix:\n", conf_matrix)
+        cls_cnt = np.sum(conf_matrix, axis=1)
+        cls_hit = np.diag(conf_matrix)
+        cls_acc = cls_hit / cls_cnt
+        print("\n### Class Accuracy: ", [f"{100 * acc:.4f}" for acc in cls_acc])
+
+        # Calculate the accuracy using the accumulated predictions and targets
+        acc = 100 * accuracy_score(np.argmax(self.all_labels, -1), np.argmax(self.all_scores, -1))
+        f1 = 100 * f1_score(np.argmax(self.all_labels, -1), np.argmax(self.all_scores, -1), average='macro')
+        ba = 100 * balanced_accuracy_score(np.argmax(self.all_labels, -1), np.argmax(self.all_scores, -1))
+        try:
+            auc = 100 * roc_auc_score(np.argmax(self.all_labels, -1), self.all_scores, multi_class="ovr")
+        except Exception as e:
+            print("### Warning: AUC calculation failed with error:", e)
+            auc = 0
+        print("### Accuracy: {:.4f}".format(acc))
+        print("### AUC: {:.4f}".format(auc))
+        print("### F1: {:.4f}".format(f1))
+        print("### Balanced Accuracy: {:.4f}".format(ba))
+
+        # Reset metrics for the next test run
+        self.confmat.reset()
+        self.all_scores = None
+        self.all_labels = None
 
     @staticmethod
     def precision_at_k(output: torch.Tensor, target: torch.Tensor, top_k=(1,)):
