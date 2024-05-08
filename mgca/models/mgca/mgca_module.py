@@ -438,6 +438,12 @@ class MGCA(LightningModule):
         parser.add_argument("--precision", type=str, default="32")
         parser.add_argument("--dev", action="store_true")
 
+        # Test args
+        parser.add_argument("--pretrained_model", type=str, default=None)
+        parser.add_argument("--eval", action="store_true", help="Run evaluation")
+        parser.add_argument("--pred_density", action="store_true")
+        parser.add_argument("--ten_pct", action="store_true")
+
         return parser
 
     @staticmethod
@@ -491,10 +497,30 @@ def cli_main():
                             args.batch_size, args.num_workers,
                             structural_cap = args.structural_cap,
                             simple_cap = args.simple_cap,
-                            natural_cap = args.natural_cap,)
+                            natural_cap = args.natural_cap,
+                            pred_density=args.pred_density,
+                            ten_pct=args.ten_pct)
 
     # Add load from checkpoint
-    model = MGCA(**args.__dict__)
+    if args.pretrained_model is None:
+        model = MGCA(**args.__dict__)
+    else:
+        print(f"\n\n##### Loading pretrained model from {args.pretrained_model}\n\n")
+        model = MGCA.load_from_checkpoint(args.pretrained_model, map_location="cpu", strict=False, **args.__dict__)
+
+    if args.eval:
+        model.eval()
+        # Single GPU inference
+        trainer = Trainer(
+            accelerator=args.accelerator,
+            precision=args.precision,
+            devices=1,
+            fast_dev_run=args.dev,
+            max_epochs=1,
+            deterministic=args.deterministic,
+            inference_mode=True
+        )
+        trainer.test(model, datamodule=datamodule)
 
     # get current time
     now = datetime.datetime.now(tz.tzlocal())

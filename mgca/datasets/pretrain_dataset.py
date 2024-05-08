@@ -176,7 +176,9 @@ class EmbedPretrainingDataset(data.Dataset):
     def __init__(self, split='train', transform=None, data_pct=1.0,
                  imsize=256, max_words=72, simple_cap=False,
                  train_sub_set=False, structural_cap=False,
-                 natural_cap=False, balanced_test=False, **kwargs):
+                 natural_cap=False, balanced_test=False, 
+                 pred_density=False, ten_pct=False, large_density=False, 
+                 **kwargs):
         super().__init__()
         if not os.path.exists(EMBED_DATA_DIR):
             raise RuntimeError(f"{EMBED_DATA_DIR} does not exist!")
@@ -189,6 +191,7 @@ class EmbedPretrainingDataset(data.Dataset):
         self.simple_cap = simple_cap
         self.natural_cap = natural_cap
         self.balanced_test = balanced_test
+        self.pred_density = pred_density
         if split == 'train':
             self.df = pd.read_csv(EMBED_TRAIN_META_CSV)
         elif split == 'valid':
@@ -219,10 +222,44 @@ class EmbedPretrainingDataset(data.Dataset):
             self.df = self.df.sample(frac=data_pct, random_state=42)
         self.df.reset_index(drop=True, inplace=True)
 
+        if self.pred_density:
+            if split == 'train':
+                density_file = EMBED_TRAIN_PATH2DENSITY
+            elif split == 'valid':
+                density_file = EMBED_VALID_PATH2DENSITY
+            elif split == 'test':
+                density_file = EMBED_TEST_PATH2DENSITY
+            else:
+                raise ValueError(f"split {split} not supported")
+            assert os.path.exists(density_file)
+            self.path2density = pickle.load(open(density_file, "rb"))
+
         if self.balanced_test:
-            assert os.path.exists(EMBED_BALANCED_TEST_PATH)
-            print('### Using balanced test set with 7x200 examples...')
-            self.balanced_test_path = pickle.load(open(EMBED_BALANCED_TEST_PATH, "rb"))
+            if self.pred_density:
+                if ten_pct:
+                    assert os.path.exists(EMBED_10PCT_DEN_TEST_PATH)
+                    print('### Using balanced test set with 10% test examples...')
+                    # Note this also contains the density label
+                    self.balanced_test_path = pickle.load(open(EMBED_10PCT_DEN_TEST_PATH, "rb"))
+                elif large_density:
+                    assert os.path.exists(EMBED_BALANCED_LARGE_DEN_TEST_PATH)
+                    print('### Using balanced test set with 4x2500 examples...')
+                    # Note this also contains the density label
+                    self.balanced_test_path = pickle.load(open(EMBED_BALANCED_LARGE_DEN_TEST_PATH, "rb"))
+                else:
+                    assert os.path.exists(EMBED_BALANCED_DEN_TEST_PATH)
+                    print('### Using balanced test set with 4x500 examples...')
+                    # Note this also contains the density label
+                    self.balanced_test_path = pickle.load(open(EMBED_BALANCED_DEN_TEST_PATH, "rb"))
+            else:
+                if ten_pct:
+                    assert os.path.exists(EMBED_10PCT_TEST_PATH)
+                    print('### Using balanced test set with 10% test examples...')
+                    self.balanced_test_path = pickle.load(open(EMBED_10PCT_TEST_PATH, "rb"))
+                else:
+                    assert os.path.exists(EMBED_BALANCED_TEST_PATH)
+                    print('### Using balanced test set with 7x200 examples...')
+                    self.balanced_test_path = pickle.load(open(EMBED_BALANCED_TEST_PATH, "rb"))
         else:
             self.balanced_test_path = None
         
