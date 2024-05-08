@@ -564,6 +564,7 @@ class MGCA(LightningModule):
         parser.add_argument("--pred_density", action="store_true")
         parser.add_argument("--ten_pct", action="store_true")
         parser.add_argument("--instance_test_cap", action="store_true")
+        parser.add_argument("--balanced_test", action="store_true")
 
         return parser
 
@@ -621,7 +622,8 @@ def cli_main():
                             natural_cap = args.natural_cap,
                             pred_density=args.pred_density,
                             ten_pct=args.ten_pct, zero_shot=args.eval,
-                            instance_test_cap=args.instance_test_cap)
+                            instance_test_cap=args.instance_test_cap,
+                            balanced_test=args.balanced_test)
 
     # Add load from checkpoint
     if args.pretrained_model is None:
