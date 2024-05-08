@@ -433,8 +433,8 @@ class MGCA(LightningModule):
         log = {
             "val_loss": loss,
             "val_loss_ita": self.hparams.lambda_1 * loss_ita,
-            "val_loss_local": 0,
-            "val_loss_proto": 0,
+            "val_loss_local": 0.,
+            "val_loss_proto": 0.,
             "val_acc1": acc1,
             "val_acc5": acc5
         }
@@ -635,41 +635,41 @@ def cli_main():
             inference_mode=True
         )
         trainer.test(model, datamodule=datamodule)
+    else:
+        # get current time
+        now = datetime.datetime.now(tz.tzlocal())
+        extension = now.strftime("%Y_%m_%d_%H_%M_%S")
+        ckpt_dir = os.path.join(
+            BASE_DIR, f"../../../logs/ckpts/MGCA/{extension}")
+        os.makedirs(ckpt_dir, exist_ok=True)
+        callbacks = [
+            LearningRateMonitor(logging_interval="step"),
+            ModelCheckpoint(monitor="val_loss", dirpath=ckpt_dir,
+                            save_last=True, mode="min", save_top_k=5),
+            EarlyStopping(monitor="val_loss", min_delta=0.,
+                        patience=5, verbose=False, mode="min")
+        ]
+        logger_dir = os.path.join(
+            BASE_DIR, f"../../../logs")
+        os.makedirs(logger_dir, exist_ok=True)
+        wandb_logger = WandbLogger(
+            project="MGCA", save_dir=logger_dir, name=extension)
+        trainer = Trainer(
+            accelerator=args.accelerator,
+            strategy=args.strategy,
+            devices=args.gpus,
+            precision=args.precision,
+            callbacks=callbacks,
+            logger=wandb_logger,
+            fast_dev_run=args.dev,
+            max_epochs=args.max_epochs)
 
-    # get current time
-    now = datetime.datetime.now(tz.tzlocal())
-    extension = now.strftime("%Y_%m_%d_%H_%M_%S")
-    ckpt_dir = os.path.join(
-        BASE_DIR, f"../../../logs/ckpts/MGCA/{extension}")
-    os.makedirs(ckpt_dir, exist_ok=True)
-    callbacks = [
-        LearningRateMonitor(logging_interval="step"),
-        ModelCheckpoint(monitor="val_loss", dirpath=ckpt_dir,
-                        save_last=True, mode="min", save_top_k=5),
-        EarlyStopping(monitor="val_loss", min_delta=0.,
-                      patience=5, verbose=False, mode="min")
-    ]
-    logger_dir = os.path.join(
-        BASE_DIR, f"../../../logs")
-    os.makedirs(logger_dir, exist_ok=True)
-    wandb_logger = WandbLogger(
-        project="MGCA", save_dir=logger_dir, name=extension)
-    trainer = Trainer(
-        accelerator=args.accelerator,
-        strategy=args.strategy,
-        devices=args.gpus,
-        precision=args.precision,
-        callbacks=callbacks,
-        logger=wandb_logger,
-        fast_dev_run=args.dev,
-        max_epochs=args.max_epochs)
+        model.training_steps = model.num_training_steps(trainer, datamodule)
+        print(model.training_steps)
+        trainer.fit(model, datamodule=datamodule)
 
-    model.training_steps = model.num_training_steps(trainer, datamodule)
-    print(model.training_steps)
-    trainer.fit(model, datamodule=datamodule)
-
-    best_ckpt_path = os.path.join(ckpt_dir, "best_ckpts.yaml")
-    callbacks[1].to_yaml(filepath=best_ckpt_path)
+        best_ckpt_path = os.path.join(ckpt_dir, "best_ckpts.yaml")
+        callbacks[1].to_yaml(filepath=best_ckpt_path)
 
 
 if __name__ == "__main__":
