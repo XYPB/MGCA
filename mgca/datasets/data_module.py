@@ -6,7 +6,7 @@ class DataModule(pl.LightningDataModule):
     def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, 
                  num_workers, crop_size=224, structural_cap=False, 
                  simple_cap=False, natural_cap=False, pred_density=False,
-                 ten_pct=False, instance_test_cap=False):
+                 ten_pct=False, instance_test_cap=False, zero_shot=False):
         super().__init__()
 
         self.dataset = dataset
@@ -20,6 +20,7 @@ class DataModule(pl.LightningDataModule):
         self.simple_cap = simple_cap
         self.natural_cap = natural_cap
         self.pred_density = pred_density
+        self.zero_shot = zero_shot
         self.ten_pct = ten_pct
         self.instance_test_cap = instance_test_cap
 
@@ -78,7 +79,8 @@ class DataModule(pl.LightningDataModule):
             natural_cap = self.natural_cap,
             pred_density=self.pred_density,
             ten_pct=self.ten_pct,
-            instance_test_cap=self.instance_test_cap)
+            instance_test_cap=self.instance_test_cap,
+            zero_shot=self.zero_shot,)
         return DataLoader(
             dataset,
             pin_memory=True,

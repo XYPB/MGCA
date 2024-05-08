@@ -620,7 +620,7 @@ def cli_main():
                             simple_cap = args.simple_cap,
                             natural_cap = args.natural_cap,
                             pred_density=args.pred_density,
-                            ten_pct=args.ten_pct,
+                            ten_pct=args.ten_pct, zero_shot=args.eval,
                             instance_test_cap=args.instance_test_cap)
 
     # Add load from checkpoint

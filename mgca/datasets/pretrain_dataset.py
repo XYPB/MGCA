@@ -178,7 +178,7 @@ class EmbedPretrainingDataset(data.Dataset):
                  train_sub_set=False, structural_cap=False,
                  natural_cap=False, balanced_test=False, 
                  pred_density=False, ten_pct=False, large_density=False, 
-                 instance_test_cap=False,
+                 instance_test_cap=False, zero_shot=False,
                  **kwargs):
         super().__init__()
         if not os.path.exists(EMBED_DATA_DIR):
@@ -194,6 +194,7 @@ class EmbedPretrainingDataset(data.Dataset):
         self.balanced_test = balanced_test
         self.pred_density = pred_density
         self.instance_test_cap = instance_test_cap
+        self.zero_shot = zero_shot
         if split == 'train':
             self.df = pd.read_csv(EMBED_TRAIN_META_CSV)
         elif split == 'valid':
