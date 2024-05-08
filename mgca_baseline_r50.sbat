@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --job-name=bash
+#SBATCH --comment=MGCA_baseline_full_cap_r50
+#SBATCH --time=2-00:00:00
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=END
+#SBATCH --mail-user=yuexi.du@yale.edu
+
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem-per-cpu=5g
+#SBATCH --partition gpu
+#SBATCH --nodes 1
+#SBATCH --gpus a5000:2
+
+cd ~/project/MGCA
+module load miniconda
+conda activate clip
+git pull
+
+cd mgca/models/mgca
+python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --img_encoder resnet_50
