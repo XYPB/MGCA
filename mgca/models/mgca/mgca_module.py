@@ -116,8 +116,8 @@ class MGCA(LightningModule):
         scores = torch.stack(batch_scores, dim=0) # N x CLS
 
         ########### image-text zero-shot cls loss ################
-        print(labels.shape)
         labels = torch.tensor(batch["path"]).type_as(self.zero_shot_text_feats) # N x CLS
+        print(labels.shape)
 
         # Image to text classification loss
         loss0 = F.cross_entropy(scores, labels.argmax(dim=-1))
