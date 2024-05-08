@@ -75,7 +75,10 @@ class DataModule(pl.LightningDataModule):
             split="test", transform=transform, data_pct=self.data_pct,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
-            natural_cap = self.natural_cap,)
+            natural_cap = self.natural_cap,
+            pred_density=self.pred_density,
+            ten_pct=self.ten_pct,
+            instance_test_cap=self.instance_test_cap)
         return DataLoader(
             dataset,
             pin_memory=True,
@@ -83,7 +86,4 @@ class DataModule(pl.LightningDataModule):
             collate_fn=self.collate_fn,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
-            pred_density=self.pred_density,
-            ten_pct=self.ten_pct,
-            instance_test_cap=self.instance_test_cap
         )
