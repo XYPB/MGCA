@@ -100,10 +100,10 @@ class MGCA(LightningModule):
         # N x CLS x S
         bsz = img_emb_q.size(0) # N x C
         batch_scores = []
-        print(fixed_caption_ids.shape)
         fixed_caption_ids = batch["caption_ids"][0] # 14 x S, get rid of batch dim
         fixed_attention_mask = batch["attention_mask"][0]
         fixed_token_type_ids = batch["token_type_ids"][0]
+        print(fixed_caption_ids.shape)
         for idx in range(bsz):
             if self.zero_shot_text_feats is None:
                 report_feat_q_full, word_feat_q, word_attn_q, sents = self.text_encoder_q(
