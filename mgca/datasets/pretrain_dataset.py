@@ -734,6 +734,7 @@ class EmbedPretrainingDataset(data.Dataset):
                         captions = base_captions + BREAST_BASE_CAPTION + BREAST_BIRADS_CAPTION + str(birads) + ": " + birads_desc + "."
                     # Update caption type if using raw style caption
                     captions = captions.replace("\n", " ").lower()
+                    print(captions)
                     cap, cap_len = self.get_caption(None, [captions])
                     zero_shot_caps.append(cap)
                     zero_shot_caps_len.append(cap_len)
