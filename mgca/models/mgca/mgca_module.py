@@ -122,17 +122,8 @@ class MGCA(LightningModule):
         # Image to text classification loss
         loss0 = F.cross_entropy(scores, labels.argmax(dim=-1))
 
-
-        if self.hparams.devices > 1:
-            score_list = [torch.zeros_like(scores) for _ in range(dist.get_world_size())]
-            dist.all_gather(score_list, scores)
-            all_scores = torch.cat(score_list, dim=0)
-            label_list = [torch.zeros_like(labels) for _ in range(dist.get_world_size())]
-            dist.all_gather(label_list, labels)
-            all_labels = torch.cat(label_list, dim=0)
-        else:
-            all_scores = scores
-            all_labels = labels
+        all_scores = scores
+        all_labels = labels
         self.confmat.update(
             torch.argmax(all_scores, dim=-1), all_labels.argmax(dim=-1))
         all_scores = all_scores.detach().to(torch.float32)
