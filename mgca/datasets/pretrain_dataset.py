@@ -650,8 +650,6 @@ class EmbedPretrainingDataset(data.Dataset):
         if series_sents is None:
             series_sents = self.path2sent[path]
 
-        print(series_sents)
-
         if len(series_sents) == 0:
             raise Exception("no sentence for path")
 
