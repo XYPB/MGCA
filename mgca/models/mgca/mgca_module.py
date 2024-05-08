@@ -103,7 +103,6 @@ class MGCA(LightningModule):
         fixed_caption_ids = batch["caption_ids"][0] # 14 x S, get rid of batch dim
         fixed_attention_mask = batch["attention_mask"][0]
         fixed_token_type_ids = batch["token_type_ids"][0]
-        print(fixed_caption_ids.shape)
         for idx in range(bsz):
             if self.zero_shot_text_feats is None:
                 report_feat_q_full, word_feat_q, word_attn_q, sents = self.text_encoder_q(
@@ -117,8 +116,8 @@ class MGCA(LightningModule):
         scores = torch.stack(batch_scores, dim=0) # N x CLS
 
         ########### image-text zero-shot cls loss ################
-        print(batch["path"])
-        labels = batch["path"].type_as(self.zero_shot_text_feats) # N x CLS
+        labels = torch.stack(batch["path"], dim=0).type_as(self.zero_shot_text_feats) # N x CLS
+        print(labels.shape)
 
         # Image to text classification loss
         loss0 = F.cross_entropy(scores, labels.argmax(dim=-1))
