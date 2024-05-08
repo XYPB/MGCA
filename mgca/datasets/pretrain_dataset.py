@@ -783,8 +783,12 @@ def multimodal_collate_fn(batch):
     attention = torch.stack(attention).squeeze()
 
     # sort and add to dictionary
-    sorted_cap_lens, sorted_cap_indices = torch.sort(
-        torch.tensor(cap_len), 0, True)
+    try:
+        sorted_cap_lens, sorted_cap_indices = torch.sort(
+            torch.tensor(cap_len), 0, True)
+    except Exception as e:
+        sorted_cap_indices = torch.arange(len(cap_len))
+        sorted_cap_lens = torch.stack(cap_len, 0)
 
     path = np.array(path)
 
