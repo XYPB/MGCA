@@ -178,6 +178,7 @@ class EmbedPretrainingDataset(data.Dataset):
                  train_sub_set=False, structural_cap=False,
                  natural_cap=False, balanced_test=False, 
                  pred_density=False, ten_pct=False, large_density=False, 
+                 instance_test_cap=False,
                  **kwargs):
         super().__init__()
         if not os.path.exists(EMBED_DATA_DIR):
@@ -192,6 +193,7 @@ class EmbedPretrainingDataset(data.Dataset):
         self.natural_cap = natural_cap
         self.balanced_test = balanced_test
         self.pred_density = pred_density
+        self.instance_test_cap = instance_test_cap
         if split == 'train':
             self.df = pd.read_csv(EMBED_TRAIN_META_CSV)
         elif split == 'valid':
@@ -653,8 +655,103 @@ class EmbedPretrainingDataset(data.Dataset):
         tokens['masked_ids'] = masked_ids
 
         return tokens, x_len
+    
+    def get_birads_one_hot_label(self, index, get_full=False):
+        multi_hot_label = torch.zeros(len(EMBED_LETTER_TO_BIRADS))
+        key = self.filenames[index]
+        asses = self.path2label[key]
+        multi_hot_label[asses] = 1
+        return multi_hot_label
+    
+    def get_density_one_hot_label(self, index, get_full=False):
+        multi_hot_label = torch.zeros(len(EMBED_DENSITY_DESC) - 1)
+        key = self.filenames[index]
+        density = self.path2label[key]
+        multi_hot_label[density] = 1
+        return multi_hot_label
+    
+    def __cls_getitem__(self, index):
+        key = self.filenames[index]
+        if self.pred_density:
+            one_hot_label = self.get_density_one_hot_label(index)
+        else:
+            one_hot_label = self.get_birads_one_hot_label(index)
+        if self.zero_shot_caps is None or self.instance_test_cap:
+            zero_shot_caps = []
+            zero_shot_caps_len = []
+            # get base caption
+            if self.instance_test_cap:
+                target_row = self.df[self.df[EMBED_PATH_COL] == key].iloc[0]
+                base_captions = self._create_captions_(target_row, meta_only=True)[0]
+            else:
+                base_captions = ''
+            # get zero-shot captions based on classes
+            if self.pred_density:
+                for density, density_desc in EMBED_DENSITY_DESC.items():
+                    if density == 5:
+                        continue
+                    # build density caption following training format
+                    if self.structural_cap:
+                        density_desc = EMBED_DENSITY_DESC[density]
+                        captions = base_captions + EMBED_DENSITY + EMBED_BREAST_COMPOSITION_CAPTION.replace("{{DENSITY}}",density_desc)
+                        if density in EMBED_DENSITY_EXTRA_CAPTION.keys():
+                            captions += EMBED_DENSITY_EXTRA_CAPTION[density]
+                    elif self.natural_cap:
+                        density_desc = EMBED_DENSITY_DESC[density]
+                        captions = base_captions + EMBED_BREAST_COMPOSITION_CAPTION.replace("{{DENSITY}}",density_desc)
+                        if density in EMBED_DENSITY_EXTRA_CAPTION.keys():
+                            captions += EMBED_DENSITY_EXTRA_CAPTION[density]
+                    else:
+                        captions = base_captions + BREAST_BASE_CAPTION + BREAST_DENSITY_CAPTION + str(density) + ": " + density_desc + "."
+                    captions = captions.replace("\n", " ").lower()
+                    cap, cap_len = self.get_caption(None, [captions])
+                    zero_shot_caps.append(cap)
+                    zero_shot_caps_len.append(cap_len)
+            else:
+                for asses, birads_desc in EMBED_BIRADS_DESC.items():
+                    birads = EMBED_LETTER_TO_BIRADS[asses]
+                    # build density caption following training format
+                    if self.structural_cap:
+                        # findings
+                        mass_info = EMBED_MASS_CAPTION[asses]
+                        captions = base_captions + EMBED_FINDINGS + EMBED_FINDS_CAPTION + mass_info + " "
+                        # impression
+                        impression_desc = EMBED_BIRADS_DESC[asses]
+                        captions += EMBED_IMPRESSIONS + EMBED_IMPRESSION_CAPTION.replace("{{BIRADS}}", str(birads)).replace("{{BIRADS_DESC}}", impression_desc)
+                        # overall assesment
+                        captions += EMBED_ASSESSMENT + EMBED_ASSESSMENT_CAPTION[asses]
+                    elif self.natural_cap:
+                        # findings
+                        mass_info = EMBED_MASS_CAPTION[asses]
+                        captions = base_captions + EMBED_FINDS_CAPTION + mass_info + " "
+                        # impression
+                        impression_desc = EMBED_BIRADS_DESC[asses]
+                        captions += EMBED_IMPRESSIONS + EMBED_IMPRESSION_CAPTION.replace("{{BIRADS}}", str(birads)).replace("{{BIRADS_DESC}}", impression_desc)
+                    else:
+                        captions = base_captions + BREAST_BASE_CAPTION + BREAST_BIRADS_CAPTION + str(birads) + ": " + birads_desc + "."
+                    # Update caption type if using raw style caption
+                    captions = captions.replace("\n", " ").lower()
+                    cap, cap_len = self.get_caption(None, [captions])
+                    zero_shot_caps.append(cap)
+                    zero_shot_caps_len.append(cap_len)
+
+            stacked_caps = {}
+            for cap in zero_shot_caps:
+                for k, v in cap.items():
+                    if k not in stacked_caps:
+                        stacked_caps[k] = v
+                    else:
+                        stacked_caps[k] = torch.concat([stacked_caps[k], v], dim=0)
+            zero_shot_caps_len = torch.tensor(zero_shot_caps_len)
+            self.zero_shot_caps = stacked_caps
+            self.zero_shot_caps_len = zero_shot_caps_len
+        key = GET_JPEG_PATH_FUNC(key)
+        imgs, orig_img = get_imgs(key, self.imsize, self.transform, return_orig_img=True)
+        return imgs, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_label
 
     def __getitem__(self, index):
+        if self.zero_shot:
+            return self.__cls_getitem__(index)
         key = self.filenames[index]
         caps, cap_len = self.get_caption(key)
         key = GET_JPEG_PATH_FUNC(key)

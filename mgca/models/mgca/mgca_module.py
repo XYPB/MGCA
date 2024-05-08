@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from cosine_annealing_warmup import CosineAnnealingWarmupRestarts
+from torcheval.metrics import AUC, MulticlassAccuracy, MulticlassConfusionMatrix
 from dateutil import tz
 from einops import rearrange
 from pytorch_lightning import LightningModule, Trainer, seed_everything
@@ -74,11 +75,81 @@ class MGCA(LightningModule):
         self.word_local_atten_layer = nn.MultiheadAttention(
             self.hparams.emb_dim, self.hparams.num_heads, batch_first=True)
 
+        self.zero_shot_text_feats = None
+        self.confmat = MulticlassConfusionMatrix(num_classes=4 if self.hparams.pred_density else 7)
+        self.all_scores = None
+        self.all_labels = None
+
         self.prototype_layer = nn.Linear(emb_dim, num_prototypes, bias=False)
         if self.hparams.gpus > 1:
             self.get_assignments = self.distributed_sinkhorn
         else:
             self.get_assignments = self.sinkhorn
+
+    def zero_shot_inference(self, batch, batch_idx):
+        '''Inference with zero shot setting'''
+
+        # Forward of query image encoder
+        img_feat_q, patch_feat_q, loss_mae, pred_mae, mask_mae, pred_feat = self.img_encoder_q(batch["imgs"])
+        # Use classification token instead of averaged patch tokens
+        img_emb_q = self.img_encoder_q.global_embed(img_feat_q)
+        img_emb_q = F.normalize(img_emb_q, dim=-1)
+
+        # Forward of query text encoder
+        # N x CLS x S
+        bsz = img_emb_q.size(0) # N x C
+        batch_scores = []
+        fixed_caption_ids = batch["caption_ids"][0] # 14 x S, get rid of batch dim
+        fixed_attention_mask = batch["attention_mask"][0]
+        fixed_token_type_ids = batch["token_type_ids"][0]
+        for idx in range(bsz):
+            if self.zero_shot_text_feats is None:
+                report_feat_q_full, word_feat_q_full, word_attn_q_full, sents_full = self.text_encoder_q(
+                    fixed_caption_ids, fixed_attention_mask, fixed_token_type_ids)
+                report_emb_q = self.text_encoder_q.global_embed(report_feat_q_full)
+                report_emb_q = F.normalize(report_emb_q, dim=-1)
+                self.zero_shot_text_feats = report_emb_q
+            scores = img_emb_q[idx:idx+1].mm(self.zero_shot_text_feats.t()) # 1 x CLS
+            scores /= self.hparams.softmax_temperature
+            batch_scores.append(scores.squeeze(0))
+        scores = torch.stack(batch_scores, dim=0) # N x CLS
+
+        ########### image-text zero-shot cls loss ################
+        print(batch["path"])
+        labels = batch["path"].type_as(self.zero_shot_text_feats) # N x CLS
+
+        # Image to text classification loss
+        loss0 = F.cross_entropy(scores, labels.argmax(dim=-1))
+
+
+        if self.hparams.devices > 1:
+            score_list = [torch.zeros_like(scores) for _ in range(dist.get_world_size())]
+            dist.all_gather(score_list, scores)
+            all_scores = torch.cat(score_list, dim=0)
+            label_list = [torch.zeros_like(labels) for _ in range(dist.get_world_size())]
+            dist.all_gather(label_list, labels)
+            all_labels = torch.cat(label_list, dim=0)
+        else:
+            all_scores = scores
+            all_labels = labels
+        self.confmat.update(
+            torch.argmax(all_scores, dim=-1), all_labels.argmax(dim=-1))
+        all_scores = all_scores.detach().to(torch.float32)
+        all_scores = torch.softmax(all_scores, dim=-1).cpu().numpy()
+        all_labels = all_labels.detach().to(torch.float32).cpu().numpy()
+        if self.all_scores is None:
+            self.all_scores = all_scores
+        else:
+            self.all_scores = np.concatenate([self.all_scores, all_scores], axis=0)
+        if self.all_labels is None:
+            self.all_labels = all_labels
+        else:
+            self.all_labels = np.concatenate([self.all_labels, all_labels], axis=0)
+
+        # compute retrieval accuracy
+        i2t_acc1 = self.precision_at_k(scores, labels.argmax(dim=-1), top_k=(1,))[0]
+
+        return loss0, i2t_acc1, 0.
 
     def forward(self, batch, batch_idx, split="train"):
         '''Forward step of our method'''
@@ -361,6 +432,25 @@ class MGCA(LightningModule):
         self.log_dict(log, batch_size=self.hparams.batch_size,
                       sync_dist=True, prog_bar=True)
         return loss
+    
+    def test_step(self, batch, batch_idx):
+        loss_ita, loss_local, loss_proto, acc1, acc5 = self(
+            batch, batch_idx, "test")
+
+        loss = self.hparams.lambda_1 * loss_ita + self.hparams.lambda_2 * \
+            loss_local + self.hparams.lambda_3 * loss_proto
+
+        log = {
+            "val_loss": loss,
+            "val_loss_ita": self.hparams.lambda_1 * loss_ita,
+            "val_loss_local": self.hparams.lambda_2 * loss_local,
+            "val_loss_proto": self.hparams.lambda_3 * loss_proto,
+            "val_acc1": acc1,
+            "val_acc5": acc5
+        }
+        self.log_dict(log, batch_size=self.hparams.batch_size,
+                      sync_dist=True, prog_bar=True)
+        return loss
 
     @staticmethod
     def precision_at_k(output: torch.Tensor, target: torch.Tensor, top_k=(1,)):
@@ -443,6 +533,7 @@ class MGCA(LightningModule):
         parser.add_argument("--eval", action="store_true", help="Run evaluation")
         parser.add_argument("--pred_density", action="store_true")
         parser.add_argument("--ten_pct", action="store_true")
+        parser.add_argument("--instance_test_cap", action="store_true")
 
         return parser
 
@@ -499,7 +590,8 @@ def cli_main():
                             simple_cap = args.simple_cap,
                             natural_cap = args.natural_cap,
                             pred_density=args.pred_density,
-                            ten_pct=args.ten_pct)
+                            ten_pct=args.ten_pct,
+                            instance_test_cap=args.instance_test_cap)
 
     # Add load from checkpoint
     if args.pretrained_model is None:

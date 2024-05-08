@@ -6,7 +6,7 @@ class DataModule(pl.LightningDataModule):
     def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, 
                  num_workers, crop_size=224, structural_cap=False, 
                  simple_cap=False, natural_cap=False, pred_density=False,
-                 ten_pct=False):
+                 ten_pct=False, instance_test_cap=False):
         super().__init__()
 
         self.dataset = dataset
@@ -21,6 +21,7 @@ class DataModule(pl.LightningDataModule):
         self.natural_cap = natural_cap
         self.pred_density = pred_density
         self.ten_pct = ten_pct
+        self.instance_test_cap = instance_test_cap
 
     def train_dataloader(self):
         if self.transforms:
@@ -84,4 +85,5 @@ class DataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             pred_density=self.pred_density,
             ten_pct=self.ten_pct,
+            instance_test_cap=self.instance_test_cap
         )
