@@ -195,6 +195,8 @@ class EmbedPretrainingDataset(data.Dataset):
         self.pred_density = pred_density
         self.instance_test_cap = instance_test_cap
         self.zero_shot = zero_shot
+        self.zero_shot_caps = None
+        self.zero_shot_caps_len = None
         if split == 'train':
             self.df = pd.read_csv(EMBED_TRAIN_META_CSV)
         elif split == 'valid':
