@@ -91,7 +91,7 @@ class MGCA(LightningModule):
         '''Inference with zero shot setting'''
 
         # Forward of query image encoder
-        img_feat_q, patch_feat_q, loss_mae, pred_mae, mask_mae, pred_feat = self.img_encoder_q(batch["imgs"])
+        img_feat_q, patch_feat_q = self.img_encoder_q(batch["imgs"])
         # Use classification token instead of averaged patch tokens
         img_emb_q = self.img_encoder_q.global_embed(img_feat_q)
         img_emb_q = F.normalize(img_emb_q, dim=-1)
@@ -106,7 +106,7 @@ class MGCA(LightningModule):
         fixed_token_type_ids = batch["token_type_ids"][0]
         for idx in range(bsz):
             if self.zero_shot_text_feats is None:
-                report_feat_q_full, word_feat_q_full, word_attn_q_full, sents_full = self.text_encoder_q(
+                report_feat_q_full, word_feat_q, word_attn_q, sents = self.text_encoder_q(
                     fixed_caption_ids, fixed_attention_mask, fixed_token_type_ids)
                 report_emb_q = self.text_encoder_q.global_embed(report_feat_q_full)
                 report_emb_q = F.normalize(report_emb_q, dim=-1)
