@@ -436,17 +436,16 @@ class MGCA(LightningModule):
         return loss
     
     def test_step(self, batch, batch_idx):
-        loss_ita, loss_local, loss_proto, acc1, acc5 = self(
+        loss_ita, acc1, acc5 = self.zero_shot_inference(
             batch, batch_idx, "test")
 
-        loss = self.hparams.lambda_1 * loss_ita + self.hparams.lambda_2 * \
-            loss_local + self.hparams.lambda_3 * loss_proto
+        loss = self.hparams.lambda_1 * loss_ita
 
         log = {
             "val_loss": loss,
             "val_loss_ita": self.hparams.lambda_1 * loss_ita,
-            "val_loss_local": self.hparams.lambda_2 * loss_local,
-            "val_loss_proto": self.hparams.lambda_3 * loss_proto,
+            "val_loss_local": 0,
+            "val_loss_proto": 0,
             "val_acc1": acc1,
             "val_acc5": acc5
         }
