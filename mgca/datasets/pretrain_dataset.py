@@ -749,7 +749,7 @@ class EmbedPretrainingDataset(data.Dataset):
             self.zero_shot_caps = stacked_caps
             self.zero_shot_caps_len = zero_shot_caps_len
         key = GET_JPEG_PATH_FUNC(key)
-        imgs, orig_img = get_imgs(key, self.imsize, self.transform, return_orig_img=True)
+        imgs = get_imgs(key, self.imsize, self.transform)
         return imgs, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_label
 
     def __getitem__(self, index):
