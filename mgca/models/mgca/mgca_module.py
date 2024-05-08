@@ -622,6 +622,7 @@ def cli_main():
         model = MGCA.load_from_checkpoint(args.pretrained_model, map_location="cpu", strict=False, **args.__dict__)
 
     if args.eval:
+        args.gpus = 1
         model.eval()
         # Single GPU inference
         trainer = Trainer(
