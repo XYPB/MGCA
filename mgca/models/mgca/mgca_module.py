@@ -437,7 +437,7 @@ class MGCA(LightningModule):
     
     def test_step(self, batch, batch_idx):
         loss_ita, acc1, acc5 = self.zero_shot_inference(
-            batch, batch_idx, "test")
+            batch, batch_idx)
 
         loss = self.hparams.lambda_1 * loss_ita
 
