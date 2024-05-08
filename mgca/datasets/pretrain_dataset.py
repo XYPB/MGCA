@@ -304,20 +304,31 @@ class EmbedPretrainingDataset(data.Dataset):
             if self.split == 'test' and self.balanced_test and p not in self.balanced_test_path.keys():
                 continue
             # Extract BI-RAS label from the last sentence
-            if self.structural_cap:
-                sent = sentences[-2]
-            elif self.natural_cap or self.simple_cap:
-                sent = sentences[-1]
+            if self.pred_density:
+                if p not in self.path2density.keys():
+                    print(f"### {p} not in density map")
+                    continue
+                # Ignore male images
+                label = self.path2density[p] - 1
+                if label == 4:
+                    continue
+                path2label[p] = label
+                filenames.append(p)
             else:
-                sent = sentences[-1].lower().replace('-', '')
-            sent = sent.replace('bi rads', 'birads')
-            assert 'birads' in sent
-            if self.structural_cap or self.natural_cap:
-                label = re.findall(r"\bbirads\s\bcategory\s(\d+)", sent)[0]
-            else:
-                label = re.findall(r"\bbirads\s\bscore\s(\d+)", sent)[0]
-            path2label[p] = int(label)
-            filenames.append(p)
+                if self.structural_cap:
+                    sent = sentences[-2]
+                elif self.natural_cap or self.simple_cap:
+                    sent = sentences[-1]
+                else:
+                    sent = sentences[-1].lower().replace('-', '')
+                sent = sent.replace('bi rads', 'birads')
+                assert 'birads' in sent
+                if self.structural_cap or self.natural_cap:
+                    label = re.findall(r"\bbirads\s\bcategory\s(\d+)", sent)[0]
+                else:
+                    label = re.findall(r"\bbirads\s\bscore\s(\d+)", sent)[0]
+                path2label[p] = int(label)
+                filenames.append(p)
         print(np.unique(list(path2label.values()), return_counts=True))
         return filenames, path2sent, path2label
     
