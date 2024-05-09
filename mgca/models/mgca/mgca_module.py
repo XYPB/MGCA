@@ -546,6 +546,7 @@ class MGCA(LightningModule):
         parser.add_argument("--accelerator", type=str, default='gpu')
         parser.add_argument("--precision", type=str, default="32")
         parser.add_argument("--dev", action="store_true")
+        parser.add_argument("--crop_size", type=int, default=224)
 
         # Test args
         parser.add_argument("--pretrained_model", type=str, default=None)
@@ -612,7 +613,8 @@ def cli_main():
                             pred_density=args.pred_density,
                             ten_pct=args.ten_pct, zero_shot=args.eval,
                             instance_test_cap=args.instance_test_cap,
-                            balanced_test=args.balanced_test)
+                            balanced_test=args.balanced_test,
+                            crop_size=args.crop_size)
 
     # Add load from checkpoint
     if args.pretrained_model is None:
