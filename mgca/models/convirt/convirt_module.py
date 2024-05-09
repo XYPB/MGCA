@@ -256,6 +256,7 @@ class ConVIRT(LightningModule):
         parser.add_argument("--momentum", type=float, default=0.9)
         parser.add_argument("--experiment_name", type=str, default="")
         parser.add_argument("--seed", type=int, default=42)
+        parser.add_argument("--data_pct", type=float, default=1.)
 
         # Training args
         parser.add_argument("--max_epochs", type=int, default=50) # Unused
