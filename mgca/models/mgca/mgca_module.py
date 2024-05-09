@@ -208,8 +208,9 @@ class MGCA(LightningModule):
             for i in range(bz):
                 atten_weight = atten_weights[i]
                 nonzero = atten_weight.nonzero().squeeze()
-                low = torch.quantile(atten_weight[nonzero], 0.1)
-                high = torch.quantile(atten_weight[nonzero], 0.9)
+                float_weight = atten_weight[nonzero].float()
+                low = torch.quantile(float_weight, 0.1).to(dtype=atten_weight.dtype)
+                high = torch.quantile(float_weight, 0.9).to(dtype=atten_weight.dtype)
                 atten_weight[nonzero] = atten_weight[nonzero].clip(low, high)
                 word_atten_weights.append(atten_weight.clone())
             word_atten_weights = torch.stack(word_atten_weights)
@@ -261,8 +262,10 @@ class MGCA(LightningModule):
                     patch_atten_weights = []
                     for i in range(bz):
                         atten_weight = atten_weights[i]
-                        atten_weight = atten_weight.clip(torch.quantile(
-                            atten_weight, 0.1), torch.quantile(atten_weight, 0.9))
+                        float_weight = atten_weight.float()
+                        low = torch.quantile(float_weight, 0.1).to(dtype=atten_weight.dtype)
+                        high = torch.quantile(float_weight, 0.9).to(dtype=atten_weight.dtype)
+                        atten_weight = atten_weight.clip(low, high)
                         patch_atten_weights.append(atten_weight.clone())
                     patch_atten_weights = torch.stack(patch_atten_weights)
 
