@@ -20,5 +20,5 @@ conda activate clip
 git pull
 
 cd mgca/models/convirt
-python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 384 --imsize 384 --batch_size 36 --precision bf16
-python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 512 --imsize 512 --batch_size 36 --precision bf16
+python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 384 --imsize 384 --batch_size 36 --precision bf16 --vit_grad_ckpt --vit_ckpt_layer 6
+python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 512 --imsize 512 --batch_size 36 --precision bf16 --vit_grad_ckpt --vit_ckpt_layer 6
