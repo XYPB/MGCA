@@ -651,7 +651,7 @@ def cli_main():
         callbacks = [
             LearningRateMonitor(logging_interval="step"),
             ModelCheckpoint(monitor="val_loss", dirpath=ckpt_dir,
-                            save_last=True, mode="min", save_top_k=5),
+                            save_last=True, mode="min", save_top_k=1),
             EarlyStopping(monitor="val_loss", min_delta=0.,
                         patience=5, verbose=False, mode="min")
         ]
