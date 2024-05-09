@@ -61,7 +61,8 @@ class ConVIRT(LightningModule):
     def init_encoder(self):
         self.img_encoder = ImageEncoder(
             model_name=self.img_encoder, image_size=self.hparams.crop_size,
-            output_dim=self.hparams.emb_dim)
+            output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
+            vit_ckpt_layer=self.hparams.vit_ckpt_layer)
         self.text_encoder = BertEncoder(
             output_dim=self.hparams.emb_dim, freeze_bert=self.freeze_bert)
 
@@ -268,6 +269,8 @@ class ConVIRT(LightningModule):
         parser.add_argument("--dev", action="store_true")
         parser.add_argument("--crop_size", type=int, default=224)
         parser.add_argument("--imsize", type=int, default=256)
+        parser.add_argument("--vit_grad_ckpt", action="store_true")
+        parser.add_argument("--vit_ckpt_layer", type=int, default=0)
 
         # Test args
         parser.add_argument("--pretrained_model", type=str, default=None)
