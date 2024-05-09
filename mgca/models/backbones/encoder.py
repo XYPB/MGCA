@@ -61,6 +61,8 @@ class ImageEncoder(nn.Module):
                  output_dim: int = 768,
                  hidden_dim: int = 2048,
                  image_size: int = 224,
+                 vit_grad_ckpt: bool = False,
+                 vit_ckpt_layer: int = 0,
                  pretrained: bool = True
                  ):
         super(ImageEncoder, self).__init__()
@@ -70,8 +72,6 @@ class ImageEncoder(nn.Module):
         self.text_feat_dim = text_feat_dim
 
         if "vit" in model_name:
-            vit_grad_ckpt = False
-            vit_ckpt_layer = 0
 
             vit_name = model_name[4:]
             self.model, vision_width = create_vit(
