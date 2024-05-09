@@ -20,4 +20,5 @@ conda activate clip
 git pull
 
 cd mgca/models/mgca
-python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --img_encoder resnet_50
+# python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --img_encoder resnet_50
+python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --img_encoder resnet_50 --crop_size 512 --imsize 512 --batch_size 36 --precision bf16
