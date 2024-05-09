@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 class DataModule(pl.LightningDataModule):
     def __init__(self, dataset, collate_fn, transforms, data_pct, batch_size, 
-                 num_workers, crop_size=224, structural_cap=False, 
+                 num_workers, imsize=256, crop_size=224, structural_cap=False, 
                  simple_cap=False, natural_cap=False, pred_density=False,
                  ten_pct=False, instance_test_cap=False, zero_shot=False,
                  balanced_test=False):
@@ -16,6 +16,7 @@ class DataModule(pl.LightningDataModule):
         self.data_pct = data_pct
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.imsize = imsize
         self.crop_size = crop_size
         self.structural_cap = structural_cap
         self.simple_cap = simple_cap
@@ -34,6 +35,7 @@ class DataModule(pl.LightningDataModule):
         
         dataset = self.dataset(
             split="train", transform=transform, data_pct=self.data_pct,
+            imsize=self.imsize,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
             natural_cap = self.natural_cap,)
@@ -56,6 +58,7 @@ class DataModule(pl.LightningDataModule):
             transform = None
         dataset = self.dataset(
             split="valid", transform=transform, data_pct=self.data_pct,
+            imsize=self.imsize,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
             natural_cap = self.natural_cap,)
@@ -76,6 +79,7 @@ class DataModule(pl.LightningDataModule):
             transform = None
         dataset = self.dataset(
             split="test", transform=transform, data_pct=self.data_pct,
+            imsize=self.imsize,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
             natural_cap = self.natural_cap,
