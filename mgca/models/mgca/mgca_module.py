@@ -65,7 +65,8 @@ class MGCA(LightningModule):
 
         # init encoders
         self.img_encoder_q = ImageEncoder(
-            model_name=img_encoder, output_dim=self.hparams.emb_dim)
+            model_name=img_encoder, image_size=self.hparams.crop_size, 
+            output_dim=self.hparams.emb_dim)
         self.text_encoder_q = BertEncoder(
             output_dim=self.hparams.emb_dim, freeze_bert=freeze_bert)
 
