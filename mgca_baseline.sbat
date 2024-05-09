@@ -20,8 +20,8 @@ conda activate clip
 git pull
 
 cd mgca/models/mgca
-python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 384 --imsize 384 --batch_size 36 --precision bf16-true
-python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 512 --imsize 512 --batch_size 36 --precision bf16-true
+python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 384 --imsize 384 --batch_size 36 --precision bf16
+python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 512 --imsize 512 --batch_size 36 --precision bf16
 
 # python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --eval --pretrained_model ../../../logs/ckpts/MGCA/2024_05_07_13_25_11/last.ckpt --ten_pct --balanced_test
 # python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --eval --pretrained_model ../../../logs/ckpts/MGCA/2024_05_07_13_25_11/last.ckpt --ten_pct --pred_density --balanced_test

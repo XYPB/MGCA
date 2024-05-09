@@ -641,6 +641,7 @@ def cli_main():
         )
         trainer.test(model, datamodule=datamodule)
     else:
+        torch.set_float32_matmul_precision('high')
         # get current time
         now = datetime.datetime.now(tz.tzlocal())
         extension = now.strftime("%Y_%m_%d_%H_%M_%S")
