@@ -79,11 +79,18 @@ class ImageEncoder(nn.Module):
 
             self.feature_dim = vision_width
 
-            checkpoint = torch.hub.load_state_dict_from_url(
-                url="https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth",
-                map_location="cpu", check_hash=True)
-            state_dict = checkpoint["model"]
-            msg = self.model.load_state_dict(state_dict, strict=False)
+            if image_size == 224:
+                checkpoint = torch.hub.load_state_dict_from_url(
+                    url="https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth",
+                    map_location="cpu", check_hash=True)
+                state_dict = checkpoint["model"]
+                msg = self.model.load_state_dict(state_dict, strict=False)
+            elif image_size == 384:
+                checkpoint = torch.hub.load_state_dict_from_url(
+                    url="https://dl.fbaipublicfiles.com/deit/deit_base_patch16_384-8de9b5d1.pth",
+                    map_location="cpu", check_hash=True)
+                state_dict = checkpoint["model"]
+                msg = self.model.load_state_dict(state_dict, strict=False)
 
             self.global_embed = GlobalEmbedding(
                 vision_width, hidden_dim, output_dim
