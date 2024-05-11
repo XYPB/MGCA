@@ -60,7 +60,7 @@ def _make_dinov2_model(
     grad_ckpt: bool = False,
     **kwargs,
 ):
-    import backbones.dino_transformer as vits
+    import mgca.models.backbones.dino_transformer as vits
 
     if isinstance(weights, str):
         try:
