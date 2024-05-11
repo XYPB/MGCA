@@ -80,7 +80,11 @@ class MGCA(LightningModule):
             self.hparams.emb_dim, self.hparams.num_heads, batch_first=True)
 
         self.zero_shot_text_feats = None
-        self.confmat = MulticlassConfusionMatrix(num_classes=4 if self.hparams.pred_density else 7)
+        if self.hparams.embed:
+            num_classes = 4 if self.hparams.pred_density else 7
+        elif self.hparams.rsna_mammo:
+            num_classes = 2
+        self.confmat = MulticlassConfusionMatrix()
         self.all_scores = None
         self.all_labels = None
 
