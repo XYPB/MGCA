@@ -179,11 +179,11 @@ class ConVIRT(LightningModule):
         loss_ita, acc1, acc5 = self.zero_shot_inference(
             batch, batch_idx)
 
-        loss = self.hparams.lambda_1 * loss_ita
+        loss = loss_ita
 
         log = {
             "val_loss": loss,
-            "val_loss_ita": self.hparams.lambda_1 * loss_ita,
+            "val_loss_ita": loss_ita,
             "val_loss_local": 0.,
             "val_loss_proto": 0.,
             "val_acc1": acc1,
