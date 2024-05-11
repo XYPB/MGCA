@@ -563,6 +563,7 @@ class MGCA(LightningModule):
         parser.add_argument("--imsize", type=int, default=256)
         parser.add_argument("--vit_grad_ckpt", action="store_true")
         parser.add_argument("--vit_ckpt_layer", type=int, default=0)
+        parser.add_argument("--resume",  type=str, default=None)
 
         # Test args
         parser.add_argument("--pretrained_model", type=str, default=None)
@@ -688,7 +689,9 @@ def cli_main():
 
         model.training_steps = model.num_training_steps(trainer, datamodule)
         print(model.training_steps)
-        trainer.fit(model, datamodule=datamodule)
+        print(f"\n### Resume from {args.resume}...\n")
+        trainer.fit(model, datamodule=datamodule,
+                    ckpt_path=args.resume,)
 
         best_ckpt_path = os.path.join(ckpt_dir, "best_ckpts.yaml")
         callbacks[1].to_yaml(filepath=best_ckpt_path)
