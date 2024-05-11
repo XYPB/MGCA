@@ -79,7 +79,6 @@ class DinoEncoder(nn.Module):
 
         if 'dinov2' in model_name:
             arch_name, pretrained, num_register_tokens, patch_size = _parse_dinov2_model_name(model_name)
-            print(num_register_tokens)
             self.model = _make_dinov2_model(
                 arch_name=arch_name,
                 patch_size=patch_size,
