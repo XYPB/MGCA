@@ -22,7 +22,7 @@ from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                             multimodal_collate_fn)
 from mgca.datasets.rsna_mammo import RSNAMammo
 from mgca.datasets.transforms import DataTransforms
-from mgca.models.backbones.encoder import BertEncoder, ImageEncoder
+from mgca.models.backbones.encoder import BertEncoder, ImageEncoder, DinoEncoder
 from torch import distributed as dist
 
 torch.autograd.set_detect_anomaly(True)
@@ -65,10 +65,16 @@ class MGCA(LightningModule):
         self.save_hyperparameters()
 
         # init encoders
-        self.img_encoder_q = ImageEncoder(
-            model_name=img_encoder, image_size=self.hparams.crop_size, 
-            output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
-            vit_ckpt_layer=self.hparams.vit_ckpt_layer)
+        if "dino" in img_encoder:
+            self.img_encoder_q = DinoEncoder(
+                model_name=img_encoder, image_size=self.hparams.crop_size, 
+                output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
+                )
+        else:
+            self.img_encoder_q = ImageEncoder(
+                model_name=img_encoder, image_size=self.hparams.crop_size, 
+                output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
+                vit_ckpt_layer=self.hparams.vit_ckpt_layer)
         self.text_encoder_q = BertEncoder(
             output_dim=self.hparams.emb_dim, freeze_bert=freeze_bert)
 
