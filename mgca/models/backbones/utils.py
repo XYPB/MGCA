@@ -41,7 +41,6 @@ def _parse_dinov2_model_name(dino_model_name):
         arch_name = 'vit_giant2'
         warnings.warn('Using the large model w/o pretraining.')
         pretrained = None
-    print(num_register_tokens)
     return arch_name, pretrained, num_register_tokens, patch_size
 
 
