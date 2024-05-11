@@ -80,6 +80,7 @@ def _make_dinov2_model(
         interpolate_offset=interpolate_offset,
         grad_ckpt=grad_ckpt,
     )
+    print(num_register_tokens)
     vit_kwargs.update(**kwargs)
     model = vits.__dict__[arch_name](**vit_kwargs)
 
