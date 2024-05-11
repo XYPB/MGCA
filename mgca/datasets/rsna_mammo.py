@@ -148,4 +148,4 @@ class RSNAMammo(torch.utils.data.Dataset):
         if self.zero_shot_caps is None:
             self.get_zeroshot_caption()
 
-        return img, self.zero_shot_caps, self.zero_shot_caps_len, path, one_hot_labels, self.zero_shot_caps, one_hot_labels, img
+        return img, self.zero_shot_caps, self.zero_shot_caps_len, path
