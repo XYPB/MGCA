@@ -617,6 +617,8 @@ def cli_main():
     parser = MGCA.add_model_specific_args(parser)
     args = parser.parse_args()
 
+    if args.dev:
+        args.gpus = 1
     args.deterministic = True
     args.max_epochs = 50
 
