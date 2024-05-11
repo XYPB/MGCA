@@ -230,9 +230,9 @@ class ConVIRT(LightningModule):
             print("### Warning: AUC calculation failed with error:", e)
             auc = 0
         print("### Accuracy: {:.4f}".format(acc))
+        print("### Balanced Accuracy: {:.4f}".format(ba))
         print("### AUC: {:.4f}".format(auc))
         print("### F1: {:.4f}".format(f1))
-        print("### Balanced Accuracy: {:.4f}".format(ba))
 
         # Reset metrics for the next test run
         self.confmat.reset()
