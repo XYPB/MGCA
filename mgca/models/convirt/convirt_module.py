@@ -127,10 +127,7 @@ class ConVIRT(LightningModule):
         else:
             self.all_labels = np.concatenate([self.all_labels, all_labels], axis=0)
 
-        # compute retrieval accuracy
-        i2t_acc1 = self.precision_at_k(scores, labels.argmax(dim=-1), top_k=(1,))[0]
-
-        return loss0, i2t_acc1, 0.
+        return loss0, 0, 0.
 
 
     def forward(self, batch):
