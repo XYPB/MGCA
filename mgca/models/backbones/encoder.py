@@ -1,5 +1,5 @@
 import os
-
+import types
 import torch
 import torch.nn as nn
 from einops import rearrange
@@ -7,6 +7,8 @@ from mgca.models.backbones import cnn_backbones
 from mgca.models.backbones.med import BertModel
 from mgca.models.backbones.vits import create_vit
 from transformers import AutoTokenizer, BertConfig, BertTokenizer, logging
+from mgca.models.backbones.utils import (masked_only_prepare_tokens_with_masks,
+                                         _parse_dinov2_model_name, _make_dinov2_model)
 
 logging.set_verbosity_error()
 
@@ -54,6 +56,80 @@ class LocalEmbedding(nn.Module):
         return x.permute(0, 2, 1)
 
 
+
+class DinoEncoder(nn.Module):
+    def __init__(self,
+                 model_name: str = "dinov2_vitb14_reg_lc",
+                 image_size: int = 224,
+                 text_feat_dim: int = 768,
+                 output_dim: int = 512,
+                 hidden_dim: int = 2048,
+                 img_mask_ratio: float = 0,
+                 freeze_vit: bool = False,
+                 pretrained: bool = True,
+                 num_freeze_blocks: int = 0,
+                 vit_grad_ckpt: bool = False,
+                 **kwargs
+                 ):
+        super(DinoEncoder, self).__init__()
+
+        self.model_name = model_name
+        self.output_dim = output_dim
+        self.text_feat_dim = text_feat_dim
+
+        if 'dinov2' in model_name:
+            arch_name, pretrained, num_register_tokens, patch_size = _parse_dinov2_model_name(model_name)
+            self.model = _make_dinov2_model(
+                arch_name=arch_name,
+                patch_size=patch_size,
+                pretrained=pretrained,
+                num_register_tokens=num_register_tokens,
+                interpolate_antialias=True,
+                interpolate_offset=0.0,
+                grad_ckpt=vit_grad_ckpt,
+            )
+        else:
+            print(self.model_name)
+            raise NotImplementedError
+        if img_mask_ratio > 0:
+            # self.model.random_masking = types.MethodType(random_masking, self.model)
+            self.model.prepare_tokens_with_masks = types.MethodType(
+                masked_only_prepare_tokens_with_masks, self.model)
+            self.model.mask_ratio = img_mask_ratio
+
+        self.model.mask_token.requires_grad = False # never train the mask token
+
+        self.feature_dim = self.model.embed_dim
+
+        self.global_embed = GlobalEmbedding(
+            self.feature_dim, hidden_dim, output_dim
+        )
+
+        # Unused
+        self.local_embed = LocalEmbedding(
+            self.feature_dim, hidden_dim, output_dim
+        )
+
+        if freeze_vit:
+            print("Freezing vit model")
+            for param in self.model.parameters():
+                param.requires_grad = False
+            for param in self.global_embed.parameters():
+                param.requires_grad = False
+            for param in self.local_embed.parameters():
+                param.requires_grad = False
+                
+        if num_freeze_blocks > 0:
+            pass #TODO
+
+    def vit_forward(self, x):
+        return self.model(x, is_training=True)
+
+    def forward(self, x, get_local=False):
+        ret = self.vit_forward(x)
+        return ret['x_norm_clstoken'].contiguous(), ret['x_norm_patchtokens'].contiguous()
+
+
 class ImageEncoder(nn.Module):
     def __init__(self,
                  model_name: str = "resnet_50",
@@ -63,7 +139,8 @@ class ImageEncoder(nn.Module):
                  image_size: int = 224,
                  vit_grad_ckpt: bool = False,
                  vit_ckpt_layer: int = 0,
-                 pretrained: bool = True
+                 pretrained: bool = True,
+                 **kwargs
                  ):
         super(ImageEncoder, self).__init__()
 
