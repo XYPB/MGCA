@@ -20,7 +20,7 @@ from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                              multimodal_collate_fn)
 from mgca.datasets.rsna_mammo import RSNAMammo
 from mgca.datasets.transforms import DataTransforms
-from mgca.models.backbones.encoder import BertEncoder, ImageEncoder
+from mgca.models.backbones.encoder import BertEncoder, ImageEncoder, DinoEncoder
 from torch import distributed as dist
 from torch import nn
 
@@ -64,10 +64,16 @@ class ConVIRT(LightningModule):
         self.init_encoder()
 
     def init_encoder(self):
-        self.img_encoder = ImageEncoder(
-            model_name=self.img_encoder, image_size=self.hparams.crop_size,
-            output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
-            vit_ckpt_layer=self.hparams.vit_ckpt_layer)
+        if "dino" in self.img_encoder:
+            self.img_encoder_q = DinoEncoder(
+                model_name=self.img_encoder, image_size=self.hparams.crop_size, 
+                output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
+                )
+        else:
+            self.img_encoder = ImageEncoder(
+                model_name=self.img_encoder, image_size=self.hparams.crop_size,
+                output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
+                vit_ckpt_layer=self.hparams.vit_ckpt_layer)
         self.text_encoder = BertEncoder(
             output_dim=self.hparams.emb_dim, freeze_bert=self.freeze_bert)
 
