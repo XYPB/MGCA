@@ -461,6 +461,19 @@ class MGCA(LightningModule):
         # Calculate the confusion matrix using the accumulated predictions and targets
         conf_matrix = self.confmat.compute().cpu().numpy()
         print("### Confusion Matrix:\n", conf_matrix)
+        if self.hparams.rsna_mammo:
+            tn = conf_matrix[0, 0]
+            tp = conf_matrix[1, 1]
+            fn = conf_matrix[1, 0]
+            fp = conf_matrix[0, 1]
+            sensitivity = tp / (tp + fn)
+            specificity = tn / (tn + fp)
+            ppv = tp / (tp + fp)
+            npv = tn / (tn + fn)
+            print("\n### Sensitivity: {:.4f}".format(sensitivity))
+            print("### Specificity: {:.4f}".format(specificity))
+            print("### PPV: {:.4f}".format(ppv))
+            print("### NPV: {:.4f}".format(npv))
         cls_cnt = np.sum(conf_matrix, axis=1)
         cls_hit = np.diag(conf_matrix)
         cls_acc = cls_hit / cls_cnt
