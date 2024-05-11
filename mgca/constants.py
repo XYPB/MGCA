@@ -397,3 +397,21 @@ EMBED_BIRADS_DESC = {
     'K': "known biopsy-proven malignancy",
 }
 GET_JPEG_PATH_FUNC = lambda x: x.replace('Embed', 'EMBED_1080_JPG').replace(".dcm", "_resized.jpg")
+
+
+# #############################################
+# RSNA constants
+# #############################################
+RSNA_MAMMO_DATA_PATH = DATA_BASE_DIR + "/rsna-breast-cancer-detection"
+RSNA_MAMMO_JPEG_DIR = RSNA_MAMMO_DATA_PATH + "/RSNA_MAMMO_1080_JPG"
+RSNA_MAMMO_TRAIN_CSV = RSNA_MAMMO_DATA_PATH + '/rsna_mammo_train.csv'
+RSNA_MAMMO_TEST_CSV = RSNA_MAMMO_DATA_PATH + '/rsna_mammo_test.csv'
+RSNA_MAMMO_BALANCE_TEST_CSV = RSNA_MAMMO_DATA_PATH + '/rsna_mammo_balanced_test.csv'
+RSNA_MAMMO_CANCER_DESC = {
+    0: "Cancer negative: overall healthy or just benign finding",
+    1: "Cancer positive: screening image with known biopsy-proven malignancy or suspicious abnormality found",
+}
+RSNA_MAMMO_BIRADS_DESC = {
+    0: ("N or B", "Negative or Benign"),
+    1: ("A", "Additional imaging required with biopsy-proven malignancy or suspicious abnormality found"),
+}
