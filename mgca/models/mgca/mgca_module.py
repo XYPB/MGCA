@@ -258,7 +258,7 @@ class MGCA(LightningModule):
                 patch_atten_output = torch.bmm(atten_scores, word_emb_q)
 
             # patch_atten_output: bz, 196, 128
-            if "vit" not in self.hparams.img_encoder:
+            if "vit" not in self.hparams.img_encoder or "dino" in self.hparams.img_encoder:
                 patch_atten_output = F.normalize(patch_atten_output, dim=-1)
                 patch_num = patch_atten_output.size(1)
                 patch_atten_weights = torch.ones(
