@@ -140,6 +140,8 @@ class RSNAMammo(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         entry = self.df.iloc[idx]
         label = self.labels[idx]
+        one_hot_labels = torch.zeros(self.n_classes)
+        one_hot_labels[label] = 1
         path = self.filenames[idx]
 
         img = get_imgs(path, scale=self.imsize, transform=self.transform)
@@ -148,4 +150,4 @@ class RSNAMammo(torch.utils.data.Dataset):
         if self.zero_shot_caps is None:
             self.get_zeroshot_caption()
 
-        return img, self.zero_shot_caps, self.zero_shot_caps_len, path
+        return img, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_labels
