@@ -95,9 +95,9 @@ class ConVIRT(LightningModule):
         fixed_token_type_ids = batch["token_type_ids"][0]
         for idx in range(bsz):
             if self.zero_shot_text_feats is None:
-                sent_feat, _, _, _ = self.text_encoder_q(
+                sent_feat, _, _, _ = self.text_encoder(
                     fixed_caption_ids, fixed_attention_mask, fixed_token_type_ids)
-                sent_emb = self.text_encoder_q.global_embed(sent_feat)
+                sent_emb = self.text_encoder.global_embed(sent_feat)
                 sent_emb = F.normalize(sent_emb, dim=-1)
                 self.zero_shot_text_feats = sent_emb
             scores = img_emb[idx:idx+1].mm(self.zero_shot_text_feats.t()) # 1 x CLS
