@@ -18,6 +18,7 @@ class Weights(Enum):
 def _parse_dinov2_model_name(dino_model_name):
     # dinov2_vitb14_reg_lc
     items = dino_model_name.split("_")
+    print(items)
     num_register_tokens = 4 if items[-1] == 'reg' else 0
     model_size = items[1][3]
     patch_size = int(items[1][4:])
