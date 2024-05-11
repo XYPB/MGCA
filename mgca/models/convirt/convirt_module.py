@@ -55,7 +55,11 @@ class ConVIRT(LightningModule):
         self.zero_shot_text_feats = None
         self.all_scores = None
         self.all_labels = None
-        self.confmat = MulticlassConfusionMatrix(num_classes=4 if self.hparams.pred_density else 7)
+        if self.hparams.embed:
+            num_classes = 4 if self.hparams.pred_density else 7
+        elif self.hparams.rsna_mammo:
+            num_classes = 2
+        self.confmat = MulticlassConfusionMatrix(num_classes)
 
         self.init_encoder()
 
@@ -201,7 +205,11 @@ class ConVIRT(LightningModule):
         f1 = 100 * f1_score(np.argmax(self.all_labels, -1), np.argmax(self.all_scores, -1), average='macro')
         ba = 100 * balanced_accuracy_score(np.argmax(self.all_labels, -1), np.argmax(self.all_scores, -1))
         try:
-            auc = 100 * roc_auc_score(np.argmax(self.all_labels, -1), self.all_scores, multi_class="ovr")
+            if len(np.unique(self.all_labels)) > 2:
+                auc = 100 * roc_auc_score(np.argmax(self.all_labels, -1), 
+                                          self.all_scores, multi_class="ovr")
+            else:
+                auc = 100 * roc_auc_score(self.all_labels, self.all_scores)
         except Exception as e:
             print("### Warning: AUC calculation failed with error:", e)
             auc = 0
