@@ -65,7 +65,7 @@ class ConVIRT(LightningModule):
 
     def init_encoder(self):
         if "dino" in self.img_encoder:
-            self.img_encoder_q = DinoEncoder(
+            self.img_encoder = DinoEncoder(
                 model_name=self.img_encoder, image_size=self.hparams.crop_size, 
                 output_dim=self.hparams.emb_dim, vit_grad_ckpt=self.hparams.vit_grad_ckpt,
                 )
