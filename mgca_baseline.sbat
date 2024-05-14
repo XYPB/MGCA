@@ -12,8 +12,8 @@
 #SBATCH --mem-per-cpu=5g
 #SBATCH --partition gpu
 #SBATCH --nodes 1
-#SBATCH --gpus a100-80g:2
-#SBATCH --
+#SBATCH --gpus a100:2
+#SBATCH --constraint=a100-80g
 
 cd ~/project/MGCA
 module load miniconda
