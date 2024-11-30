@@ -57,6 +57,8 @@ class ConVIRT(LightningModule):
         self.all_labels = None
         if self.hparams.embed:
             num_classes = 4 if self.hparams.pred_density else 7
+            if self.hparams.screen_only:
+                num_classes = 3
         elif self.hparams.rsna_mammo:
             num_classes = 2
         self.confmat = MulticlassConfusionMatrix(num_classes)
@@ -271,6 +273,8 @@ class ConVIRT(LightningModule):
         parser.add_argument("--structural_cap", action="store_true")
         parser.add_argument("--simple_cap", action="store_true")
         parser.add_argument("--natural_cap", action="store_true")
+        parser.add_argument("--screen_only", action="store_true")
+        parser.add_argument("--aligned_mlo", action="store_true")
         parser.add_argument("--emb_dim", type=int,
                             default=128, help="128, 256")
         parser.add_argument("--num_workers", type=int, default=16)
@@ -356,7 +360,9 @@ def cli_main():
                             instance_test_cap=args.instance_test_cap,
                             balanced_test=args.balanced_test,
                             crop_size=args.crop_size,
-                            imsize=args.imsize)
+                            imsize=args.imsize,
+                            screen_only=args.screen_only,
+                            aligned_mlo=args.aligned_mlo)
 
     # Add load from checkpoint
     if args.pretrained_model is None:

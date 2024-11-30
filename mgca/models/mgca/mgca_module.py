@@ -88,6 +88,8 @@ class MGCA(LightningModule):
         self.zero_shot_text_feats = None
         if self.hparams.embed:
             num_classes = 4 if self.hparams.pred_density else 7
+            if self.hparams.screen_only:
+                num_classes = 3
         elif self.hparams.rsna_mammo:
             num_classes = 2
         self.confmat = MulticlassConfusionMatrix(num_classes)
@@ -569,6 +571,8 @@ class MGCA(LightningModule):
         parser.add_argument("--seed", type=int, default=42)
         parser.add_argument("--bidirectional", action="store_false")
         parser.add_argument("--data_pct", type=float, default=1.)
+        parser.add_argument("--screen_only", action="store_true")
+        parser.add_argument("--aligned_mlo", action="store_true")
 
         # Training args
         parser.add_argument("--max_epochs", type=int, default=50) # Unused
@@ -655,7 +659,9 @@ def cli_main():
                             instance_test_cap=args.instance_test_cap,
                             balanced_test=args.balanced_test,
                             crop_size=args.crop_size,
-                            imsize=args.imsize)
+                            imsize=args.imsize,
+                            screen_only=args.screen_only,
+                            aligned_mlo=args.aligned_mlo)
 
     # Add load from checkpoint
     if args.pretrained_model is None:

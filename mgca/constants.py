@@ -397,6 +397,7 @@ EMBED_BIRADS_DESC = {
     'K': "known biopsy-proven malignancy",
 }
 GET_JPEG_PATH_FUNC = lambda x: x.replace('Embed', 'EMBED_1080_JPG').replace(".dcm", "_resized.jpg")
+GET_ALIGNED_MLO_FUNC = lambda x: x.replace(".jpg", "_align_to_cc.jpg")
 
 
 # #############################################

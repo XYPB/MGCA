@@ -202,6 +202,8 @@ class EmbedPretrainingDataset(data.Dataset):
         ten_pct=False,
         large_density=False,
         instance_test_cap=False,
+        screen_only=False, 
+        aligned_mlo=False,
         zero_shot=False,
         **kwargs,
     ):
@@ -220,6 +222,8 @@ class EmbedPretrainingDataset(data.Dataset):
         self.pred_density = pred_density
         self.instance_test_cap = instance_test_cap
         self.zero_shot = zero_shot
+        self.screen_only = screen_only
+        self.aligned_mlo = aligned_mlo
         self.zero_shot_caps = None
         self.zero_shot_caps_len = None
         if split == "train":
@@ -263,6 +267,11 @@ class EmbedPretrainingDataset(data.Dataset):
         # Only use 2D mammograms for now
         self.df = self.df[self.df[EMBED_IMAGE_TYPE_COL].isin(["2D"])]
         self.df[EMBED_PATH_COL] = self.df[EMBED_PATH_COL].apply(EMBED_PATH_TRANS_FUNC)
+        
+        # Only use screening images if screen_only is True
+        if screen_only:
+            screen_idx = self.df[EMBED_PROCEDURE_COL].apply(lambda x: x.lower().find('screen') > 0)
+            self.df = self.df[screen_idx]
 
         if self.structural_cap or self.natural_cap:
             self.max_words = 144
@@ -337,6 +346,8 @@ class EmbedPretrainingDataset(data.Dataset):
             base_filename = base_filename.replace(".pickle", "_simple.pickle")
         elif self.natural_cap:
             base_filename = base_filename.replace(".pickle", "_natural.pickle")
+        if self.screen_only:
+            base_filename = base_filename.replace(".pickle", "_screen.pickle")
         filepath = os.path.join(EMBED_DATA_DIR, base_filename)
 
         if not os.path.isfile(filepath):
@@ -363,7 +374,24 @@ class EmbedPretrainingDataset(data.Dataset):
                 and p not in self.balanced_test_path.keys()
             ):
                 continue
-            # Extract BI-RAS label from the last sentence
+            if self.structural_cap:
+                sent = sentences[-2]
+            elif self.natural_cap or self.simple_cap or self.structural_cap:
+                sent = sentences[-1]
+            else:
+                sent = sentences[-1].lower().replace('-', '')
+            sent = sent.replace('bi rads', 'birads')
+            assert 'birads' in sent
+            if self.structural_cap or self.natural_cap:
+                birads = re.findall(r"\bbirads\s\bcategory\s(\d+)", sent)[0]
+            elif self.tabular_caption:
+                sent = sent.replace(':', '')
+                birads = re.findall(r"\bbirads\s(\d+)", sent)[0]
+            else:
+                birads = re.findall(r"\bbirads\s\bscore\s(\d+)", sent)[0]
+            # skip birads 3 - 6 considering only screening image with 0, 1, 2
+            if self.screen_only and int(birads) > 2:
+                continue
             if self.pred_density:
                 if p not in self.path2density.keys():
                     print(f"### {p} not in density map")
@@ -375,19 +403,7 @@ class EmbedPretrainingDataset(data.Dataset):
                 path2label[p] = label
                 filenames.append(p)
             else:
-                if self.structural_cap:
-                    sent = sentences[-2]
-                elif self.natural_cap or self.simple_cap:
-                    sent = sentences[-1]
-                else:
-                    sent = sentences[-1].lower().replace("-", "")
-                sent = sent.replace("bi rads", "birads")
-                assert "birads" in sent
-                if self.structural_cap or self.natural_cap:
-                    label = re.findall(r"\bbirads\s\bcategory\s(\d+)", sent)[0]
-                else:
-                    label = re.findall(r"\bbirads\s\bscore\s(\d+)", sent)[0]
-                path2label[p] = int(label)
+                path2label[p] = int(birads)
                 filenames.append(p)
         print(np.unique(list(path2label.values()), return_counts=True))
         return filenames, path2sent, path2label
@@ -913,6 +929,10 @@ class EmbedPretrainingDataset(data.Dataset):
             self.zero_shot_caps = stacked_caps
             self.zero_shot_caps_len = zero_shot_caps_len
         key = GET_JPEG_PATH_FUNC(key)
+        if self.aligned_mlo:
+            aligned_key = GET_ALIGNED_MLO_FUNC(key)
+            if os.path.exists(aligned_key):
+                key = aligned_key
         imgs = get_imgs(key, self.imsize, self.transform)
         return imgs, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_label
 
@@ -922,6 +942,10 @@ class EmbedPretrainingDataset(data.Dataset):
         key = self.filenames[index]
         caps, cap_len = self.get_caption(key)
         key = GET_JPEG_PATH_FUNC(key)
+        if self.aligned_mlo:
+            aligned_key = GET_ALIGNED_MLO_FUNC(key)
+            if os.path.exists(aligned_key):
+                key = aligned_key
         imgs = get_imgs(key, self.imsize, self.transform)
         return imgs, caps, cap_len, key
 

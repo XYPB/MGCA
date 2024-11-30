@@ -7,7 +7,7 @@ class DataModule(pl.LightningDataModule):
                  num_workers, imsize=256, crop_size=224, structural_cap=False, 
                  simple_cap=False, natural_cap=False, pred_density=False,
                  ten_pct=False, instance_test_cap=False, zero_shot=False,
-                 balanced_test=False):
+                 balanced_test=False, screen_only=False, aligned_mlo=False):
         super().__init__()
 
         self.dataset = dataset
@@ -26,6 +26,8 @@ class DataModule(pl.LightningDataModule):
         self.ten_pct = ten_pct
         self.instance_test_cap = instance_test_cap
         self.balanced_test = balanced_test
+        self.screen_only = screen_only
+        self.aligned_mlo = aligned_mlo
 
     def train_dataloader(self):
         if self.transforms:
@@ -38,7 +40,9 @@ class DataModule(pl.LightningDataModule):
             imsize=self.imsize,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
-            natural_cap = self.natural_cap,)
+            natural_cap = self.natural_cap,
+            screen_only=self.screen_only,
+            aligned_mlo=self.aligned_mlo)
 
         return DataLoader(
             dataset,
@@ -61,7 +65,9 @@ class DataModule(pl.LightningDataModule):
             imsize=self.imsize,
             structural_cap = self.structural_cap,
             simple_cap = self.simple_cap,
-            natural_cap = self.natural_cap,)
+            natural_cap = self.natural_cap,
+            screen_only=self.screen_only,
+            aligned_mlo=self.aligned_mlo)
         return DataLoader(
             dataset,
             pin_memory=True,
@@ -87,7 +93,9 @@ class DataModule(pl.LightningDataModule):
             ten_pct=self.ten_pct,
             instance_test_cap=self.instance_test_cap,
             zero_shot=self.zero_shot,
-            balanced_test=self.balanced_test)
+            balanced_test=self.balanced_test,
+            screen_only=self.screen_only,
+            aligned_mlo=self.aligned_mlo)
         return DataLoader(
             dataset,
             pin_memory=True,
