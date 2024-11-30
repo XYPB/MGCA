@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#SBATCH --job-name=bash
+#SBATCH --comment=ConVIRT_baseline_full_cap
+#SBATCH --time=2-00:00:00
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=END
+#SBATCH --mail-user=yuexi.du@yale.edu
+
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --mem-per-cpu=4g
+#SBATCH --partition gpu
+#SBATCH --nodes 1
+#SBATCH --gpus a5000:2
+
+cd ~/project/MGCA
+module load miniconda
+conda activate clip
+git pull
+
+cd mgca/models/convirt
+
+
+python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 518 --imsize 518 --batch_size 12 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg" --screen_only --aligned_mlo
+
+# python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 518 --imsize 518 --batch_size 12 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg" --eval --pretrained_model ../../../logs/ckpts/ConVIRT/2024_05_13_00_09_42/last.ckpt --ten_pct --balanced_test
+# python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 518 --imsize 518 --batch_size 12 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg" --eval --pretrained_model ../../../logs/ckpts/ConVIRT/2024_05_13_00_09_42/last.ckpt --ten_pct --balanced_test --pred_density
+# python convirt_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --rsna_mammo --structural_cap --crop_size 518 --imsize 518 --batch_size 12 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg" --eval --pretrained_model ../../../logs/ckpts/ConVIRT/2024_05_13_00_09_42/last.ckpt
