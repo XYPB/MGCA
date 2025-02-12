@@ -89,7 +89,7 @@ class MGCA(LightningModule):
         if self.hparams.embed:
             num_classes = 4 if self.hparams.pred_density else 7
             if self.hparams.screen_only:
-                num_classes = 3
+                num_classes = 4 if self.hparams.pred_density else 3
         elif self.hparams.rsna_mammo:
             num_classes = 2
         self.confmat = MulticlassConfusionMatrix(num_classes)
