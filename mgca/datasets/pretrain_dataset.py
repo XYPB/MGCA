@@ -798,7 +798,7 @@ class EmbedPretrainingDataset(data.Dataset):
 
     def get_birads_one_hot_label(self, index, get_full=False):
         num_classes = 3 if self.screen_only else len(EMBED_LETTER_TO_BIRADS)
-        multi_hot_label = torch.zeros(len(num_classes))
+        multi_hot_label = torch.zeros(num_classes)
         key = self.filenames[index]
         asses = self.path2label[key]
         multi_hot_label[asses] = 1
