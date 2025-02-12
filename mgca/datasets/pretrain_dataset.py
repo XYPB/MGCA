@@ -868,7 +868,8 @@ class EmbedPretrainingDataset(data.Dataset):
                     zero_shot_caps.append(cap)
                     zero_shot_caps_len.append(cap_len)
             else:
-                for asses, birads_desc in EMBED_BIRADS_DESC.items():
+                target_birads = EMBED_SCREEN_BIRADS_DESC if self.screen_only else EMBED_BIRADS_DESC
+                for asses, birads_desc in target_birads.items():
                     birads = EMBED_LETTER_TO_BIRADS[asses]
                     # build density caption following training format
                     if self.structural_cap:
@@ -882,7 +883,7 @@ class EmbedPretrainingDataset(data.Dataset):
                             + " "
                         )
                         # impression
-                        impression_desc = EMBED_BIRADS_DESC[asses]
+                        impression_desc = target_birads[asses]
                         captions += (
                             EMBED_IMPRESSIONS
                             + EMBED_IMPRESSION_CAPTION.replace(
@@ -896,7 +897,7 @@ class EmbedPretrainingDataset(data.Dataset):
                         mass_info = EMBED_MASS_CAPTION[asses]
                         captions = base_captions + EMBED_FINDS_CAPTION + mass_info + " "
                         # impression
-                        impression_desc = EMBED_BIRADS_DESC[asses]
+                        impression_desc = target_birads[asses]
                         captions += (
                             EMBED_IMPRESSIONS
                             + EMBED_IMPRESSION_CAPTION.replace(

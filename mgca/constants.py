@@ -396,6 +396,11 @@ EMBED_BIRADS_DESC = {
     'M': "highly suggestive of malignancy",
     'K': "known biopsy-proven malignancy",
 }
+EMBED_SCREEN_BIRADS_DESC = {
+    'A': "additional imaging required",
+    'N': "negative",
+    'B': "benign finding",
+}
 GET_JPEG_PATH_FUNC = lambda x: x.replace('Embed', 'EMBED_1080_JPG').replace(".dcm", "_resized.jpg")
 GET_ALIGNED_MLO_FUNC = lambda x: x.replace(".jpg", "_align_to_cc.jpg")
 
