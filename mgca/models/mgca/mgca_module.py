@@ -501,6 +501,21 @@ class MGCA(LightningModule):
         print("### Balanced Accuracy: {:.4f}".format(ba))
         print("### AUC: {:.4f}".format(auc))
         print("### F1: {:.4f}".format(f1))
+        
+        if self.hparams.save_prediction:
+            # Save predictions to disk
+            save_dir = self.hparams.pretrained_model.replace(
+                "last.ckpt", "predictions"
+            )
+            if self.hparams.pred_density:
+                save_dir = save_dir.replace("predictions", "predictions_density")
+            os.makedirs(save_dir, exist_ok=True)
+            np.save(os.path.join(save_dir, "labels.npy"), self.all_labels)
+            np.save(os.path.join(save_dir, "scores.npy"), self.all_scores)
+            path_dest = os.path.join(save_dir, "path.pickle")
+            with open(path_dest, "wb") as fp:
+                import pickle
+                pickle.dump(self.all_paths, fp)
 
         # Reset metrics for the next test run
         self.confmat.reset()
@@ -598,6 +613,7 @@ class MGCA(LightningModule):
         parser.add_argument("--ten_pct", action="store_true")
         parser.add_argument("--instance_test_cap", action="store_true")
         parser.add_argument("--balanced_test", action="store_true")
+        parser.add_argument("--save_prediction", action="store_true")
 
         return parser
 
