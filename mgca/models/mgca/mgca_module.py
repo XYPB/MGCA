@@ -95,6 +95,7 @@ class MGCA(LightningModule):
         self.confmat = MulticlassConfusionMatrix(num_classes)
         self.all_scores = None
         self.all_labels = None
+        self.all_paths = []
 
         self.prototype_layer = nn.Linear(emb_dim, num_prototypes, bias=False)
         if self.hparams.gpus > 1:
@@ -131,7 +132,7 @@ class MGCA(LightningModule):
         scores = torch.stack(batch_scores, dim=0) # N x CLS
 
         ########### image-text zero-shot cls loss ################
-        labels = torch.tensor(batch["path"]).type_as(self.zero_shot_text_feats) # N x CLS
+        labels = torch.tensor(batch["label"]).type_as(self.zero_shot_text_feats) # N x CLS
 
         # Image to text classification loss
         loss0 = F.cross_entropy(scores, labels.argmax(dim=-1))
@@ -151,6 +152,8 @@ class MGCA(LightningModule):
             self.all_labels = all_labels
         else:
             self.all_labels = np.concatenate([self.all_labels, all_labels], axis=0)
+        for path in batch["path"]:
+            self.all_paths.append(path)
 
         # compute retrieval accuracy
         i2t_acc1 = self.precision_at_k(scores, labels.argmax(dim=-1), top_k=(1,))[0]

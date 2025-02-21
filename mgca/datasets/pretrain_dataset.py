@@ -936,7 +936,7 @@ class EmbedPretrainingDataset(data.Dataset):
             if os.path.exists(aligned_key):
                 key = aligned_key
         imgs = get_imgs(key, self.imsize, self.transform)
-        return imgs, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_label
+        return imgs, self.zero_shot_caps, self.zero_shot_caps_len, key, one_hot_label
 
     def __getitem__(self, index):
         if self.zero_shot:
@@ -956,8 +956,13 @@ def multimodal_collate_fn(batch):
     """sort sequence"""
     imgs, cap_len, ids, tokens, attention = [], [], [], [], []
     path = []
+    label = []
     for b in batch:
-        img, cap, cap_l, p = b
+        if len(b) == 5:
+            img, cap, cap_l, p, l = b
+            label.append(l)
+        else:
+            img, cap, cap_l, p = b
         imgs.append(img)
         cap_len.append(cap_l)
         ids.append(cap["input_ids"])
@@ -979,6 +984,7 @@ def multimodal_collate_fn(batch):
         sorted_cap_lens = torch.stack(cap_len, 0)
 
     path = np.array(path)
+    label = np.array(label)
 
     return_dict = {
         "caption_ids": ids[sorted_cap_indices],
@@ -987,6 +993,7 @@ def multimodal_collate_fn(batch):
         "imgs": imgs[sorted_cap_indices],
         "cap_lens": sorted_cap_lens,
         "path": path[sorted_cap_indices],
+        "label": label[sorted_cap_indices],
     }
     return return_dict
 
