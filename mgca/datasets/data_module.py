@@ -7,7 +7,8 @@ class DataModule(pl.LightningDataModule):
                  num_workers, imsize=256, crop_size=224, structural_cap=False, 
                  simple_cap=False, natural_cap=False, pred_density=False,
                  ten_pct=False, instance_test_cap=False, zero_shot=False,
-                 balanced_test=False, screen_only=False, aligned_mlo=False):
+                 balanced_test=False, screen_only=False, aligned_mlo=False,
+                 paired_test=False):
         super().__init__()
 
         self.dataset = dataset
@@ -28,6 +29,7 @@ class DataModule(pl.LightningDataModule):
         self.balanced_test = balanced_test
         self.screen_only = screen_only
         self.aligned_mlo = aligned_mlo
+        self.paired_test = paired_test
 
     def train_dataloader(self):
         if self.transforms:
@@ -67,7 +69,8 @@ class DataModule(pl.LightningDataModule):
             simple_cap = self.simple_cap,
             natural_cap = self.natural_cap,
             screen_only=self.screen_only,
-            aligned_mlo=self.aligned_mlo)
+            aligned_mlo=self.aligned_mlo,
+            paired_test=self.paired_test)
         return DataLoader(
             dataset,
             pin_memory=True,
@@ -95,7 +98,8 @@ class DataModule(pl.LightningDataModule):
             zero_shot=self.zero_shot,
             balanced_test=self.balanced_test,
             screen_only=self.screen_only,
-            aligned_mlo=self.aligned_mlo)
+            aligned_mlo=self.aligned_mlo,
+            paired_test=self.paired_test)
         return DataLoader(
             dataset,
             pin_memory=True,

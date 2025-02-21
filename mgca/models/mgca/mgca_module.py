@@ -591,6 +591,7 @@ class MGCA(LightningModule):
         parser.add_argument("--data_pct", type=float, default=1.)
         parser.add_argument("--screen_only", action="store_true")
         parser.add_argument("--aligned_mlo", action="store_true")
+        parser.add_argument("--paired_test", action="store_true")
 
         # Training args
         parser.add_argument("--max_epochs", type=int, default=50) # Unused
@@ -680,7 +681,8 @@ def cli_main():
                             crop_size=args.crop_size,
                             imsize=args.imsize,
                             screen_only=args.screen_only,
-                            aligned_mlo=args.aligned_mlo)
+                            aligned_mlo=args.aligned_mlo,
+                            paired_test=args.paired_test)
 
     # Add load from checkpoint
     if args.pretrained_model is None:

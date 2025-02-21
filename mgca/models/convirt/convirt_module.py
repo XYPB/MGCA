@@ -275,6 +275,7 @@ class ConVIRT(LightningModule):
         parser.add_argument("--natural_cap", action="store_true")
         parser.add_argument("--screen_only", action="store_true")
         parser.add_argument("--aligned_mlo", action="store_true")
+        parser.add_argument("--paired_test", action="store_true")
         parser.add_argument("--emb_dim", type=int,
                             default=128, help="128, 256")
         parser.add_argument("--num_workers", type=int, default=16)
@@ -362,7 +363,8 @@ def cli_main():
                             crop_size=args.crop_size,
                             imsize=args.imsize,
                             screen_only=args.screen_only,
-                            aligned_mlo=args.aligned_mlo)
+                            aligned_mlo=args.aligned_mlo,
+                            paired_test=args.paired_test)
 
     # Add load from checkpoint
     if args.pretrained_model is None:
