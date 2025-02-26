@@ -512,6 +512,8 @@ class MGCA(LightningModule):
             )
             if self.hparams.pred_density:
                 save_dir = save_dir.replace("predictions", "predictions_density")
+            if self.hparams.vindr:
+                save_dir = save_dir.replace("predictions", "predictions_vindr")
             os.makedirs(save_dir, exist_ok=True)
             np.save(os.path.join(save_dir, "labels.npy"), self.all_labels)
             np.save(os.path.join(save_dir, "scores.npy"), self.all_scores)
