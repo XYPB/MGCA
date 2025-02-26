@@ -21,6 +21,7 @@ from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                             EmbedPretrainingDataset,
                                             multimodal_collate_fn)
 from mgca.datasets.rsna_mammo import RSNAMammo
+from mgca.datasets.vindr import VinDr
 from mgca.datasets.transforms import DataTransforms
 from mgca.models.backbones.encoder import BertEncoder, ImageEncoder, DinoEncoder
 from torch import distributed as dist
@@ -569,6 +570,7 @@ class MGCA(LightningModule):
         parser.add_argument("--freeze_bert", action="store_true")
         parser.add_argument("--embed", action="store_true")
         parser.add_argument("--rsna_mammo", action="store_true")
+        parser.add_argument("--vindr", action="store_true")
         parser.add_argument("--structural_cap", action="store_true")
         parser.add_argument("--simple_cap", action="store_true")
         parser.add_argument("--natural_cap", action="store_true")
@@ -665,6 +667,8 @@ def cli_main():
         dataset_obj = EmbedPretrainingDataset
     elif args.rsna_mammo:
         dataset_obj = RSNAMammo
+    elif args.vindr:
+        dataset_obj = VinDr
     else:
         dataset_obj = MultimodalPretrainingDataset
 

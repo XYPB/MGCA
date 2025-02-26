@@ -271,6 +271,7 @@ class ConVIRT(LightningModule):
         parser.add_argument("--freeze_bert", action="store_true")
         parser.add_argument("--embed", action="store_true")
         parser.add_argument("--rsna_mammo", action="store_true")
+        parser.add_argument("--vindr", action="store_true")
         parser.add_argument("--structural_cap", action="store_true")
         parser.add_argument("--simple_cap", action="store_true")
         parser.add_argument("--natural_cap", action="store_true")
