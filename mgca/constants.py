@@ -423,3 +423,29 @@ RSNA_MAMMO_BIRADS_DESC = {
     0: ("N or B", "Negative or Benign"),
     1: ("A", "Additional imaging required with biopsy-proven malignancy or suspicious abnormality found"),
 }
+
+# #############################################
+# VinDr constants
+# #############################################
+
+VINDR_DATA_PATH = DATA_BASE_DIR + "/vindr-1.0.0"
+VINDR_IMAGE_DIR = VINDR_DATA_PATH + "/images"
+VINDR_CSV_DIR = VINDR_DATA_PATH + "/breast-level_annotations.csv"
+VINDR_DET_CSV_DIR = VINDR_DATA_PATH + "/finding_annotations.csv"
+VINDR_DENSITY_LETTER2DIGIT = {
+    'A': 1,
+    'B': 2,
+    'C': 3,
+    'D': 4
+}
+VINDR_BIRADS_DIGIT2LETTER = {
+    0: 'N',
+    1: 'B',
+    2: 'P',
+    3: 'S',
+    4: 'M'
+}
+VIN_DR_DENSITY_WEIGHT = [0.9124643059323552, 0.04777300031059451, 0.005967719463259354, 0.03379497429379093]
+VIN_DR_BIRADS_WEIGHT = [0.010478014208492025, 0.030028387058222465, 0.15102987146756514, 0.1842069251997844, 0.6242568020659359]
+VIN_DR_MASS_WEIGHT = 16.17861187510112
+VIN_DR_CALC_WEIGHT = 37.38317757009346

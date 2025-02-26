@@ -19,6 +19,7 @@ from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                              EmbedPretrainingDataset,
                                              multimodal_collate_fn)
 from mgca.datasets.rsna_mammo import RSNAMammo
+from mgca.datasets.vindr import VinDr
 from mgca.datasets.transforms import DataTransforms
 from mgca.models.backbones.encoder import BertEncoder, ImageEncoder, DinoEncoder
 from torch import distributed as dist
@@ -347,6 +348,8 @@ def cli_main():
         dataset_obj = EmbedPretrainingDataset
     elif args.rsna_mammo:
         dataset_obj = RSNAMammo
+    elif args.vindr:
+        dataset_obj = VinDr
     else:
         dataset_obj = MultimodalPretrainingDataset
     # define datamodule
