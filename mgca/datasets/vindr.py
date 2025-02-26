@@ -210,20 +210,16 @@ class VinDr(torch.utils.data.Dataset):
         label = self.labels[idx]
         dicom_path = os.path.join(self.data_path, f'{sid}/{imid}.dicom')
         
-        if self.load_jpg:
-            img_path = dicom_path.replace('vindr-1.0.0', 'vindr-1.0.0-resized-1024')
-            img_path = img_path.replace('.dicom', '_resized.png')
-            assert os.path.exists(img_path)
-            img = get_imgs(img_path, scale=self.imsize, transform=self.transform)
-        else:
-            assert os.path.exists(dicom_path)
-            img = read_from_dicom(dicom_path, transform=self.transform)
+        img_path = dicom_path.replace('vindr-1.0.0', 'vindr-1.0.0-resized-1024')
+        img_path = img_path.replace('.dicom', '_resized.png')
+        assert os.path.exists(img_path)
+        img = get_imgs(img_path, scale=self.imsize, transform=self.transform)
         one_hot_labels = torch.zeros(self.n_classes)
         one_hot_labels[label] = 1
         if self.zero_shot_caps is None:
             self.get_zeroshot_caption()
 
-        return img, self.zero_shot_caps, self.zero_shot_caps_len, one_hot_labels
+        return img, self.zero_shot_caps, self.zero_shot_caps_len, img_path, one_hot_labels
 
 
 

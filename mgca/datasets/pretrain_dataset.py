@@ -963,7 +963,6 @@ def multimodal_collate_fn(batch):
     path = []
     label = []
     for b in batch:
-        print(len(b))
         if len(b) == 5:
             img, cap, cap_l, p, l = b
             label.append(l)
