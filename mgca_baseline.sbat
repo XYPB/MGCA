@@ -15,7 +15,7 @@
 #SBATCH --nodes 1
 #SBATCH --gpus rtx_pro_6000_blackwell:1
 
-cd ~/project/PEMedCLIP
+cd ~/project/MGCA
 module load miniconda
 conda activate b200_env
 git pull
