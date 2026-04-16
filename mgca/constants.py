@@ -195,39 +195,39 @@ CHEXPERT_CLASS_PROMPTS = {
 # #############################################
 # MIMIC-CXR-JPG constants
 # #############################################
-MIMIC_CXR_DATA_DIR = DATA_BASE_DIR / "/mimic-cxr-jpg-resized/2.1.0"
+MIMIC_CXR_DATA_DIR = DATA_BASE_DIR / "mimic-cxr-jpg-resized/2.1.0"
 # MIMIC_CXR_TRAIN_TXT = MIMIC_CXR_DATA_DIR / "train.txt"
 # MIMIC_CXR_VALID_TXT = MIMIC_CXR_DATA_DIR / "test.txt"
-MIMIC_CXR_CHEXPERT_CSV = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-chexpert.csv"
-MIMIC_CXR_META_CSV = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-metadata.csv"
-MIMIC_CXR_TEXT_CSV = MIMIC_CXR_DATA_DIR / "/mimic_cxr_sectioned.csv"
-MIMIC_CXR_SPLIT_CSV = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-split.csv"
+MIMIC_CXR_CHEXPERT_CSV = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-chexpert.csv"
+MIMIC_CXR_META_CSV = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-metadata.csv"
+MIMIC_CXR_TEXT_CSV = MIMIC_CXR_DATA_DIR / "mimic_cxr_sectioned.csv"
+MIMIC_CXR_SPLIT_CSV = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-split.csv"
 # Original csv
-MIMIC_CXR_TRAIN_CSV_ORIG = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-split-train.csv"
-MIMIC_CXR_TEST_CSV_ORIG = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-split-test.csv"
-MIMIC_CXR_VALID_CSV_ORIG = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-split-val.csv"
-MIMIC_CXR_GOLD_TEST_CSV = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.1.0-split-gold-test.csv"
+MIMIC_CXR_TRAIN_CSV_ORIG = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-split-train.csv"
+MIMIC_CXR_TEST_CSV_ORIG = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-split-test.csv"
+MIMIC_CXR_VALID_CSV_ORIG = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-split-val.csv"
+MIMIC_CXR_GOLD_TEST_CSV = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.1.0-split-gold-test.csv"
 # Created csv
-MIMIC_CXR_TRAIN_CSV = MIMIC_CXR_DATA_DIR / "/mimic_cxr_lt_labeled_train.csv"
-MIMIC_CXR_VALID_CSV = MIMIC_CXR_DATA_DIR / "/mimic_cxr_lt_labeled_val.csv"
+MIMIC_CXR_TRAIN_CSV = MIMIC_CXR_DATA_DIR / "mimic_cxr_lt_labeled_train.csv"
+MIMIC_CXR_VALID_CSV = MIMIC_CXR_DATA_DIR / "mimic_cxr_lt_labeled_val.csv"
 
 
 # All 3 challenge tasks uses the same train csv
-MIMIC_CXR_DATA_C1_DIR = MIMIC_CXR_DATA_DIR / "/starting_k1_test/task1_test_starting_kit"
-MIMIC_CXR_TRAIN_CSV_ALL = MIMIC_CXR_DATA_C1_DIR / "/train_labeled.csv"
+MIMIC_CXR_DATA_C1_DIR = MIMIC_CXR_DATA_DIR / "starting_k1_test/task1_test_starting_kit"
+MIMIC_CXR_TRAIN_CSV_ALL = MIMIC_CXR_DATA_C1_DIR / "train_labeled.csv"
 # MIMIC_CXR_TEST_CSV_C1 = MIMIC_CXR_DATA_C1_DIR / "/test_task1.csv"
-MIMIC_CXR_TEST_CSV_C1 = MIMIC_CXR_DATA_C1_DIR / "/test_labeled_task1.csv"
+MIMIC_CXR_TEST_CSV_C1 = MIMIC_CXR_DATA_C1_DIR / "test_labeled_task1.csv"
 
-MIMIC_CXR_DATA_C2_DIR = MIMIC_CXR_DATA_DIR / "/starting_k2_test/task2_test_starting_kit"
+MIMIC_CXR_DATA_C2_DIR = MIMIC_CXR_DATA_DIR / "starting_k2_test/task2_test_starting_kit"
 # MIMIC_CXR_TEST_CSV_C2 = MIMIC_CXR_DATA_C2_DIR / "/test_task2.csv"
-MIMIC_CXR_TEST_CSV_C2 = MIMIC_CXR_DATA_C2_DIR / "/test_labeled_task2.csv"
+MIMIC_CXR_TEST_CSV_C2 = MIMIC_CXR_DATA_C2_DIR / "test_labeled_task2.csv"
 
-MIMIC_CXR_DATA_C3_DIR = MIMIC_CXR_DATA_DIR / "/starting_k3_test/task3_test_starting_kit"
+MIMIC_CXR_DATA_C3_DIR = MIMIC_CXR_DATA_DIR / "starting_k3_test/task3_test_starting_kit"
 # MIMIC_CXR_TEST_CSV_C3 = MIMIC_CXR_DATA_C3_DIR / "/test_task3.csv"
-MIMIC_CXR_TEST_CSV_C3 = MIMIC_CXR_DATA_C3_DIR / "/test_labeled_task3.csv"
+MIMIC_CXR_TEST_CSV_C3 = MIMIC_CXR_DATA_C3_DIR / "test_labeled_task3.csv"
 
 # MIMIC_CXR_MASTER_CSV = MIMIC_CXR_DATA_DIR / "/master.csv"
-MIMIC_CXR_MASTER_CSV = MIMIC_CXR_DATA_DIR / "/mimic-cxr-2.0.0-metadata.csv"
+MIMIC_CXR_MASTER_CSV = MIMIC_CXR_DATA_DIR / "mimic-cxr-2.0.0-metadata.csv"
 MIMIC_CXR_VIEW_COL = "ViewPosition"
 MIMIC_CXR_PATH_COL = "fpath"
 MIMIC_CXR_SPLIT_COL = "split"
