@@ -18,6 +18,7 @@ from mgca.datasets.data_module import DataModule
 from mgca.datasets.pretrain_dataset import (MultimodalPretrainingDataset,
                                              EmbedPretrainingDataset,
                                              multimodal_collate_fn)
+from mgca.datasets.pretrain_dataset_new_mimic import MIMICPretrainingDataset
 from mgca.datasets.rsna_mammo import RSNAMammo
 from mgca.datasets.vindr import VinDr
 from mgca.datasets.transforms import DataTransforms
@@ -64,6 +65,9 @@ class ConVIRT(LightningModule):
             num_classes = 4 if self.hparams.pred_density else 5
         elif self.hparams.rsna_mammo:
             num_classes = 2
+        elif self.hparams.new_mimic:
+            from mgca.constants import MIMIC_CXR_LT_FINDINGS
+            num_classes = len(MIMIC_CXR_LT_FINDINGS)
         self.confmat = MulticlassConfusionMatrix(num_classes)
 
         self.init_encoder()
@@ -272,6 +276,7 @@ class ConVIRT(LightningModule):
         parser.add_argument("--img_encoder", type=str, default="vit_base")
         parser.add_argument("--freeze_bert", action="store_true")
         parser.add_argument("--embed", action="store_true")
+        parser.add_argument("--new_mimic", action="store_true")
         parser.add_argument("--rsna_mammo", action="store_true")
         parser.add_argument("--vindr", action="store_true")
         parser.add_argument("--structural_cap", action="store_true")
@@ -353,6 +358,8 @@ def cli_main():
         dataset_obj = RSNAMammo
     elif args.vindr:
         dataset_obj = VinDr
+    elif args.new_mimic:
+        dataset_obj = MIMICPretrainingDataset
     else:
         dataset_obj = MultimodalPretrainingDataset
     # define datamodule

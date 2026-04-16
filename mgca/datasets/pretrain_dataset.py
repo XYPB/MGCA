@@ -989,7 +989,10 @@ def multimodal_collate_fn(batch):
         sorted_cap_lens = torch.stack(cap_len, 0)
 
     path = np.array(path)
-    label = np.array(label)
+    if len(label) > 0:
+        label = np.array(label)
+    else:
+        label = np.ones(len(path)) * -1
 
     return_dict = {
         "caption_ids": ids[sorted_cap_indices],
