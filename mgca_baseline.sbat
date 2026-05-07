@@ -32,7 +32,7 @@ cd mgca/models/mgca
 # python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 384 --imsize 384 --batch_size 18 --precision bf16 --accumulate_grad_batches 2 --eval --pretrained_model ../../../logs/ckpts/MGCA/2024_05_09_10_00_35/last.ckpt --ten_pct --pred_density --balanced_test
 # python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --rsna_mammo --structural_cap --crop_size 384 --imsize 384 --batch_size 18 --precision bf16 --accumulate_grad_batches 2 --eval --pretrained_model ../../../logs/ckpts/MGCA/2024_05_09_10_00_35/last.ckpt 
 
-python mgca_module.py --gpus 2 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 518 --imsize 518 --batch_size 12 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg"
+python mgca_module.py --gpus 1 --strategy ddp_find_unused_parameters_true --embed --structural_cap --crop_size 518 --imsize 518 --batch_size 48 --precision bf16 --accumulate_grad_batches 3 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg"
 
 # python mgca_module.py --gpus 1 --strategy ddp_find_unused_parameters_true --new_mimic --structural_cap --crop_size 518 --imsize 518 --batch_size 48 --precision bf16 --accumulate_grad_batches 2 --vit_grad_ckpt --img_encoder "dinov2_vitb14_reg"
 
